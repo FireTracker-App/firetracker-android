@@ -2,6 +2,11 @@ package me.techchrism.firetracker
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -9,10 +14,14 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import java.util.*
+import kotlin.collections.HashSet
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var requestQueue: RequestQueue
+    private var incidentSet: HashSet<FireData> = HashSet()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +30,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        requestQueue = Volley.newRequestQueue(this)
+        loadFireData()
     }
 
     /**
@@ -35,9 +47,52 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        // Move the camera to California
+        val california = LatLng(36.7783, -119.4179)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(california, 5.5f))
+        if(incidentSet.size != 0) {
+            displayFireData()
+        }
+    }
+
+    private fun loadFireData() {
+        val fireDataRequest = JsonObjectRequest(Request.Method.GET, "https://www.fire.ca.gov/umbraco/Api/IncidentApi/GetIncidents", null,
+                { response ->
+                    val incidents = response.getJSONArray("Incidents")
+                    for(i in 0 until incidents.length()) {
+                        val incident = incidents.getJSONObject(i)
+                        incidentSet.add(FireData(
+                            UUID.fromString(incident.getString("UniqueId")),
+                            incident.getString("Name"),
+                            incident.getString("Location"),
+                            incident.getDouble("Latitude"),
+                            incident.getDouble("Longitude"),
+                            incident.getBoolean("Active"),
+                        ))
+                    }
+                    if(this::mMap.isInitialized) {
+                        displayFireData()
+                    }
+                },
+                { error ->
+                    // TODO: Handle error
+                }
+        )
+        requestQueue.add(fireDataRequest)
+    }
+
+    private fun displayFireData() {
+        if(!this::mMap.isInitialized) {
+            return;
+        }
+
+        for(fireData in incidentSet) {
+            mMap.addMarker(MarkerOptions()
+                    .position(LatLng(fireData.latitude, fireData.longitude))
+                    .draggable(false)
+                    .title(fireData.name)
+                    .visible(fireData.active)
+            )
+        }
     }
 }
