@@ -12,6 +12,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import java.util.*
@@ -31,6 +32,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        // Load the fire data from the API
         requestQueue = Volley.newRequestQueue(this)
         loadFireData()
     }
@@ -38,8 +40,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -55,10 +55,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Loads the fire data from the API and, if the map is ready, displays it
+     */
     private fun loadFireData() {
         val fireDataRequest = JsonObjectRequest(Request.Method.GET, "https://www.fire.ca.gov/umbraco/Api/IncidentApi/GetIncidents", null,
                 { response ->
                     val incidents = response.getJSONArray("Incidents")
+                    // Iterate through the incidents in the api
                     for(i in 0 until incidents.length()) {
                         val incident = incidents.getJSONObject(i)
                         incidentSet.add(FireData(
@@ -70,6 +74,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             incident.getBoolean("Active"),
                         ))
                     }
+                    // Display the data if the map is ready
                     if(this::mMap.isInitialized) {
                         displayFireData()
                     }
@@ -81,6 +86,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         requestQueue.add(fireDataRequest)
     }
 
+    /**
+     * Displays the fire data as markers on the map
+     */
     private fun displayFireData() {
         if(!this::mMap.isInitialized) {
             return;
@@ -92,6 +100,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .draggable(false)
                     .title(fireData.name)
                     .visible(fireData.active)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.fire_icon))
             )
         }
     }
