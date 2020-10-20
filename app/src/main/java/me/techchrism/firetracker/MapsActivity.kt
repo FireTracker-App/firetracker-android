@@ -1,22 +1,32 @@
 package me.techchrism.firetracker
 
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.format.DateFormat
+import android.view.Gravity
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.RequestQueue
-import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashSet
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -50,6 +60,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Move the camera to California
         val california = LatLng(36.7783, -119.4179)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(california, 5.5f))
+        // From https://stackoverflow.com/a/31629308
+        mMap.setInfoWindowAdapter(object : InfoWindowAdapter {
+            override fun getInfoWindow(arg0: Marker): View? {
+                return null
+            }
+
+            override fun getInfoContents(marker: Marker): View {
+                val info = LinearLayout(this@MapsActivity)
+                info.orientation = LinearLayout.VERTICAL
+                val title = TextView(this@MapsActivity)
+                title.setTextColor(Color.BLACK)
+                title.gravity = Gravity.CENTER
+                title.setTypeface(null, Typeface.BOLD)
+                title.text = marker.title
+                val snippet = TextView(this@MapsActivity)
+                snippet.setTextColor(Color.GRAY)
+                snippet.text = marker.snippet
+                info.addView(title)
+                info.addView(snippet)
+                return info
+            }
+        })
+
+        // Display fire data if already retrieved
         if(incidentSet.size != 0) {
             displayFireData()
         }
@@ -63,19 +97,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 { response ->
                     val incidents = response.getJSONArray("Incidents")
                     // Iterate through the incidents in the api
-                    for(i in 0 until incidents.length()) {
+                    val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                    for (i in 0 until incidents.length()) {
                         val incident = incidents.getJSONObject(i)
+                        val contained = incident.optInt("PercentContained", -1)
+                        val acres = incident.optInt("AcresBurned", -1)
                         incidentSet.add(FireData(
-                            UUID.fromString(incident.getString("UniqueId")),
-                            incident.getString("Name"),
-                            incident.getString("Location"),
-                            incident.getDouble("Latitude"),
-                            incident.getDouble("Longitude"),
-                            incident.getBoolean("Active"),
+                                UUID.fromString(incident.getString("UniqueId")),
+                                incident.getString("Name"),
+                                incident.getString("Location"),
+                                incident.getDouble("Latitude"),
+                                incident.getDouble("Longitude"),
+                                incident.getBoolean("Active"),
+                                format.parse(incident.getString("Started"))!!,
+                                if (contained != -1) contained else null,
+                                if (acres != -1) acres else null
                         ))
                     }
                     // Display the data if the map is ready
-                    if(this::mMap.isInitialized) {
+                    if (this::mMap.isInitialized) {
                         displayFireData()
                     }
                 },
@@ -91,8 +131,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     private fun displayFireData() {
         if(!this::mMap.isInitialized) {
-            return;
+            return
         }
+
+        val dateFormat = DateFormat.getDateFormat(this)
+        val numberFormat = NumberFormat.getInstance()
 
         for(fireData in incidentSet) {
             mMap.addMarker(MarkerOptions()
@@ -101,6 +144,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .title(fireData.name)
                     .visible(fireData.active)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.fire_icon))
+                    .snippet("""
+                        Location: ${fireData.location}
+                        Started: ${dateFormat.format(fireData.started)}
+                        Acres Burned: ${fireData.acresBurned?.let { numberFormat.format(it) } ?: "unknown"}
+                        Contained: ${fireData.percentContained?.toString()?.plus("%") ?: "unknown"}
+                    """.trimIndent())
             )
         }
     }

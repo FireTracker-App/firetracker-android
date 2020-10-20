@@ -8,5 +8,8 @@ data class FireData (
     val location: String,
     val latitude: Double,
     val longitude: Double,
-    val active: Boolean
+    val active: Boolean,
+    val started: Date,
+    val percentContained: Int?,
+    val acresBurned: Int?
 )
