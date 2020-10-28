@@ -11,5 +11,6 @@ data class FireData (
     val active: Boolean,
     val started: Date,
     val percentContained: Int?,
-    val acresBurned: Int?
+    val acresBurned: Int?,
+    val searchDescription: String
 )

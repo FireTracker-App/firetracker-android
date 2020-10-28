@@ -111,7 +111,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 incident.getBoolean("Active"),
                                 format.parse(incident.getString("Started"))!!,
                                 if (contained != -1) contained else null,
-                                if (acres != -1) acres else null
+                                if (acres != -1) acres else null,
+                                incident.getString("SearchDescription")
                         ))
                     }
                     // Display the data if the map is ready
@@ -149,6 +150,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         Started: ${dateFormat.format(fireData.started)}
                         Acres Burned: ${fireData.acresBurned?.let { numberFormat.format(it) } ?: "unknown"}
                         Contained: ${fireData.percentContained?.toString()?.plus("%") ?: "unknown"}
+                        Description: ${fireData.searchDescription}
                     """.trimIndent())
             )
         }
