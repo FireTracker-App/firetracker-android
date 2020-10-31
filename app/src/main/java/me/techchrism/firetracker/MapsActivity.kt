@@ -8,16 +8,14 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
@@ -33,6 +31,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var requestQueue: RequestQueue
     private var incidentSet: HashSet<FireData> = HashSet()
+    private var reportSet: HashSet<FireData> = HashSet()
+    private val california = LatLng(36.7783, -119.4179)
+    private val reportsAllowedPerUser = 2
+    private val reportCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +43,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        // Obtain main report button for use in methods below.
+        val reportButton = findViewById<Button>(R.id.report)
 
         // Load the fire data from the API
         requestQueue = Volley.newRequestQueue(this)
@@ -57,8 +62,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        // Turn on Google's built in zoom buttons
+        val uiSettings: UiSettings = googleMap.uiSettings
+        uiSettings.isZoomControlsEnabled = true
+
         // Move the camera to California
-        val california = LatLng(36.7783, -119.4179)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(california, 5.5f))
         // From https://stackoverflow.com/a/31629308
         mMap.setInfoWindowAdapter(object : InfoWindowAdapter {
@@ -144,7 +152,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .draggable(false)
                     .title(fireData.name)
                     .visible(fireData.active)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.fire_icon))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.calfire_fire_icon))
                     .snippet("""
                         Location: ${fireData.location}
                         Started: ${dateFormat.format(fireData.started)}
@@ -154,5 +162,37 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     """.trimIndent())
             )
         }
+    }
+
+    /**
+     * Places a pin on user location; allows user to place pin
+     * Opens a dialog for the user to report a local fire
+     */
+    public fun reportFire(view: View){
+        mMap.addMarker(MarkerOptions()
+                .position(california)
+                .draggable(true)
+                .title("New Fire Report")
+                .visible(true)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
+        )
+        // Set the button to gone while the user sets the location of the marker.
+        view.visibility = View.GONE
+    }
+
+    /**
+     * User enters fire information after placing down the pin on the map
+     */
+    public fun enterFireInfo(view: View){
+        //TODO
+        mMap.addMarker(MarkerOptions()
+                .position(california)
+                .draggable(true)
+                .title("New Fire Report")
+                .visible(true)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
+        )
+        // Set the button to gone while the user sets the location of the marker.
+        view.visibility = View.GONE
     }
 }
