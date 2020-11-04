@@ -6,9 +6,10 @@ import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.Gravity
 import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.RequestQueue
@@ -31,10 +32,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var requestQueue: RequestQueue
     private var incidentSet: HashSet<FireData> = HashSet()
-    private var reportSet: HashSet<FireData> = HashSet()
     private val california = LatLng(36.7783, -119.4179)
-    private val reportsAllowedPerUser = 2
-    private val reportCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +44,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Obtain main report button for use in methods below.
         val reportButton = findViewById<Button>(R.id.report)
+        // Obtain marker placed button for use in methods below.
+        val markerPlacedButton = findViewById<Button>(R.id.markerPlaced)
+        markerPlacedButton.visibility = View.GONE;
+        // The new marker to be initialized in reportFire()
+        lateinit var newMarker: Marker
+
+        reportButton?.setOnClickListener(){ // Whenever this button is clicked...
+            newMarker = reportFire();
+            // Set the button to gone while the user sets the location of the marker.
+            reportButton.visibility = View.GONE;
+            // Return the placedButton button.
+            markerPlacedButton.visibility = View.VISIBLE;
+        }
+
+        markerPlacedButton?.setOnClickListener(){ // Whenever this button is clicked...
+            enterFireInfo(newMarker);
+            // Set the button to gone while the user sets the location of the marker.
+            markerPlacedButton.visibility = View.GONE;
+            // Return the report button.
+            reportButton.visibility = View.VISIBLE;
+        }
 
         // Load the fire data from the API
         requestQueue = Volley.newRequestQueue(this)
@@ -101,36 +120,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Loads the fire data from the API and, if the map is ready, displays it
      */
     private fun loadFireData() {
-        val fireDataRequest = JsonObjectRequest(Request.Method.GET, "https://www.fire.ca.gov/umbraco/Api/IncidentApi/GetIncidents", null,
-                { response ->
-                    val incidents = response.getJSONArray("Incidents")
-                    // Iterate through the incidents in the api
-                    val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                    for (i in 0 until incidents.length()) {
-                        val incident = incidents.getJSONObject(i)
-                        val contained = incident.optInt("PercentContained", -1)
-                        val acres = incident.optInt("AcresBurned", -1)
-                        incidentSet.add(FireData(
-                                UUID.fromString(incident.getString("UniqueId")),
-                                incident.getString("Name"),
-                                incident.getString("Location"),
-                                incident.getDouble("Latitude"),
-                                incident.getDouble("Longitude"),
-                                incident.getBoolean("Active"),
-                                format.parse(incident.getString("Started"))!!,
-                                if (contained != -1) contained else null,
-                                if (acres != -1) acres else null,
-                                incident.getString("SearchDescription")
-                        ))
-                    }
-                    // Display the data if the map is ready
-                    if (this::mMap.isInitialized) {
-                        displayFireData()
-                    }
-                },
-                { error ->
-                    // TODO: Handle error
+        val fireDataRequest = JsonObjectRequest(Request.Method.GET,
+            "https://www.fire.ca.gov/umbraco/Api/IncidentApi/GetIncidents",
+            null,
+            { response ->
+                val incidents = response.getJSONArray("Incidents")
+                // Iterate through the incidents in the api
+                val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                for (i in 0 until incidents.length()) {
+                    val incident = incidents.getJSONObject(i)
+                    val contained = incident.optInt("PercentContained", -1)
+                    val acres = incident.optInt("AcresBurned", -1)
+                    incidentSet.add(
+                        FireData(
+                            UUID.fromString(incident.getString("UniqueId")),
+                            incident.getString("Name"),
+                            incident.getString("Location"),
+                            incident.getDouble("Latitude"),
+                            incident.getDouble("Longitude"),
+                            incident.getBoolean("Active"),
+                            format.parse(incident.getString("Started"))!!,
+                            if (contained != -1) contained else null,
+                            if (acres != -1) acres else null,
+                            incident.getString("SearchDescription")
+                        )
+                    )
                 }
+                // Display the data if the map is ready
+                if (this::mMap.isInitialized) {
+                    displayFireData()
+                }
+            },
+            { error ->
+                // TODO: Handle error
+            }
         )
         requestQueue.add(fireDataRequest)
     }
@@ -148,12 +171,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         for(fireData in incidentSet) {
             mMap.addMarker(MarkerOptions()
-                    .position(LatLng(fireData.latitude, fireData.longitude))
-                    .draggable(false)
-                    .title(fireData.name)
-                    .visible(fireData.active)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.calfire_fire_icon))
-                    .snippet("""
+                .position(LatLng(fireData.latitude, fireData.longitude))
+                .draggable(false)
+                .title(fireData.name)
+                .visible(fireData.active)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.calfire_fire_icon))
+                .snippet("""
                         Location: ${fireData.location}
                         Started: ${dateFormat.format(fireData.started)}
                         Acres Burned: ${fireData.acresBurned?.let { numberFormat.format(it) } ?: "unknown"}
@@ -168,31 +191,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Places a pin on user location; allows user to place pin
      * Opens a dialog for the user to report a local fire
      */
-    public fun reportFire(view: View){
-        mMap.addMarker(MarkerOptions()
+    private fun reportFire(): Marker{
+        Toast.makeText(this, "Hold down new orange and yellow striped fire icon to move it.", Toast.LENGTH_SHORT).show()
+        return mMap.addMarker(
+            MarkerOptions()
                 .position(california)
                 .draggable(true)
                 .title("New Fire Report")
                 .visible(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
         )
-        // Set the button to gone while the user sets the location of the marker.
-        view.visibility = View.GONE
     }
 
     /**
      * User enters fire information after placing down the pin on the map
      */
-    public fun enterFireInfo(view: View){
+    private fun enterFireInfo(placedMarker: Marker){
         //TODO
-        mMap.addMarker(MarkerOptions()
-                .position(california)
-                .draggable(true)
-                .title("New Fire Report")
-                .visible(true)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
-        )
-        // Set the button to gone while the user sets the location of the marker.
-        view.visibility = View.GONE
+        placedMarker.isDraggable = false
+        placedMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
     }
 }
