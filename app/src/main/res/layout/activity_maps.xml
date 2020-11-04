@@ -25,7 +25,6 @@
             android:layout_width="503dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="reportFire"
             android:text="@string/report_local_fire"
             android:visibility="visible" />
 
