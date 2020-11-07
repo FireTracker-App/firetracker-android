@@ -50,7 +50,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // The new marker to be initialized in reportFire()
         lateinit var newMarker: Marker
 
-        reportButton?.setOnClickListener(){ // Whenever this button is clicked...
+        reportButton?.setOnClickListener() { // Whenever this button is clicked...
             newMarker = reportFire();
             // Set the button to gone while the user sets the location of the marker.
             reportButton.visibility = View.GONE;
@@ -58,7 +58,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             markerPlacedButton.visibility = View.VISIBLE;
         }
 
-        markerPlacedButton?.setOnClickListener(){ // Whenever this button is clicked...
+        markerPlacedButton?.setOnClickListener() { // Whenever this button is clicked...
             enterFireInfo(newMarker);
             // Set the button to gone while the user sets the location of the marker.
             markerPlacedButton.visibility = View.GONE;
@@ -111,7 +111,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         // Display fire data if already retrieved
-        if(incidentSet.size != 0) {
+        if (incidentSet.size != 0) {
             displayFireData()
         }
     }
@@ -121,39 +121,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     private fun loadFireData() {
         val fireDataRequest = JsonObjectRequest(Request.Method.GET,
-            "https://www.fire.ca.gov/umbraco/Api/IncidentApi/GetIncidents",
-            null,
-            { response ->
-                val incidents = response.getJSONArray("Incidents")
-                // Iterate through the incidents in the api
-                val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                for (i in 0 until incidents.length()) {
-                    val incident = incidents.getJSONObject(i)
-                    val contained = incident.optInt("PercentContained", -1)
-                    val acres = incident.optInt("AcresBurned", -1)
-                    incidentSet.add(
-                        FireData(
-                            UUID.fromString(incident.getString("UniqueId")),
-                            incident.getString("Name"),
-                            incident.getString("Location"),
-                            incident.getDouble("Latitude"),
-                            incident.getDouble("Longitude"),
-                            incident.getBoolean("Active"),
-                            format.parse(incident.getString("Started"))!!,
-                            if (contained != -1) contained else null,
-                            if (acres != -1) acres else null,
-                            incident.getString("SearchDescription")
+                "https://www.fire.ca.gov/umbraco/Api/IncidentApi/GetIncidents",
+                null,
+                { response ->
+                    val incidents = response.getJSONArray("Incidents")
+                    // Iterate through the incidents in the api
+                    val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                    for (i in 0 until incidents.length()) {
+                        val incident = incidents.getJSONObject(i)
+                        val contained = incident.optInt("PercentContained", -1)
+                        val acres = incident.optInt("AcresBurned", -1)
+                        incidentSet.add(
+                                FireData(
+                                        UUID.fromString(incident.getString("UniqueId")),
+                                        incident.getString("Name"),
+                                        incident.getString("Location"),
+                                        incident.getDouble("Latitude"),
+                                        incident.getDouble("Longitude"),
+                                        incident.getBoolean("Active"),
+                                        format.parse(incident.getString("Started"))!!,
+                                        if (contained != -1) contained else null,
+                                        if (acres != -1) acres else null,
+                                        incident.getString("SearchDescription")
+                                )
                         )
-                    )
+                    }
+                    // Display the data if the map is ready
+                    if (this::mMap.isInitialized) {
+                        displayFireData()
+                    }
+                },
+                { error ->
+                    // TODO: Handle error
                 }
-                // Display the data if the map is ready
-                if (this::mMap.isInitialized) {
-                    displayFireData()
-                }
-            },
-            { error ->
-                // TODO: Handle error
-            }
         )
         requestQueue.add(fireDataRequest)
     }
@@ -162,21 +162,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Displays the fire data as markers on the map
      */
     private fun displayFireData() {
-        if(!this::mMap.isInitialized) {
+        if (!this::mMap.isInitialized) {
             return
         }
 
         val dateFormat = DateFormat.getDateFormat(this)
         val numberFormat = NumberFormat.getInstance()
 
-        for(fireData in incidentSet) {
+        for (fireData in incidentSet) {
             mMap.addMarker(MarkerOptions()
-                .position(LatLng(fireData.latitude, fireData.longitude))
-                .draggable(false)
-                .title(fireData.name)
-                .visible(fireData.active)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.calfire_fire_icon))
-                .snippet("""
+                    .position(LatLng(fireData.latitude, fireData.longitude))
+                    .draggable(false)
+                    .title(fireData.name)
+                    .visible(fireData.active)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.calfire_fire_icon))
+                    .snippet("""
                         Location: ${fireData.location}
                         Started: ${dateFormat.format(fireData.started)}
                         Acres Burned: ${fireData.acresBurned?.let { numberFormat.format(it) } ?: "unknown"}
@@ -191,22 +191,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Places a pin on user location; allows user to place pin
      * Opens a dialog for the user to report a local fire
      */
-    private fun reportFire(): Marker{
+    private fun reportFire(): Marker {
         Toast.makeText(this, "Hold down new orange and yellow striped fire icon to move it.", Toast.LENGTH_SHORT).show()
         return mMap.addMarker(
-            MarkerOptions()
-                .position(california)
-                .draggable(true)
-                .title("New Fire Report")
-                .visible(true)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
+                MarkerOptions()
+                        .position(california)
+                        .draggable(true)
+                        .title("New Fire Report")
+                        .visible(true)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
         )
     }
 
     /**
      * User enters fire information after placing down the pin on the map
      */
-    private fun enterFireInfo(placedMarker: Marker){
+    private fun enterFireInfo(placedMarker: Marker) {
         //TODO
         placedMarker.isDraggable = false
         placedMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
