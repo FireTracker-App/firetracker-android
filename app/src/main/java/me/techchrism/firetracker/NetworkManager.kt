@@ -1,12 +1,10 @@
 package me.techchrism.firetracker
 
 import android.content.Context
-import com.android.volley.AuthFailureError
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import me.techchrism.firetracker.firedata.CalFireData
 import me.techchrism.firetracker.firedata.FireData
@@ -30,31 +28,38 @@ class NetworkManager
         loadReportedFireData()
     }
 
-    fun reportFire(id: UUID, latitude: Double, longitude: Double) {
-        val reportRequest = object : StringRequest(
-            Method.POST,
-            "https://firetracker.techchrism.me/markers",
-            { result ->
-                //TODO on success, add marker to screen here
-                println("Added marker with id $id")
-            },
-            { //TODO  on failure, print a toast message
-            }
-        ) {
-            override fun getBody(): ByteArray {
-                val data = JSONObject()
-                data.put("reporter", id.toString())
-                data.put("latitude", latitude)
-                data.put("longitude", longitude)
-                return data.toString().toByteArray()
-            }
+    private fun loadReportedFireData(report: JSONObject) : ReportedFireData {
+        val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        val id = UUID.nameUUIDFromBytes(report.getString("_id").toByteArray())
+        return ReportedFireData(
+            id,
+            report.getDouble("latitude"),
+            report.getDouble("longitude"),
+            format.parse(report.getString("reported"))!!
+        )
+    }
 
-            override fun getHeaders(): Map<String, String>? {
-                val params: MutableMap<String, String> = HashMap()
-                params["Content-Type"] = "application/json"
-                return params
+    fun reportFire(id: UUID, latitude: Double, longitude: Double) {
+        val data = JSONObject()
+        data.put("reporter", id.toString())
+        data.put("latitude", latitude)
+        data.put("longitude", longitude)
+        val reportRequest = JsonObjectRequest(
+            Request.Method.POST,
+            "https://firetracker.techchrism.me/markers",
+            data,
+            { response ->
+                val report = response.getJSONObject("marker")
+                val fireData = loadReportedFireData(report)
+                incidentSet.add(fireData)
+                if (this::onNewFire.isInitialized) {
+                    onNewFire(fireData)
+                }
+            },
+            { error ->
+                // TODO: Handle error
             }
-        }
+        )
         requestQueue.add(reportRequest)
     }
 
@@ -67,18 +72,10 @@ class NetworkManager
             "https://firetracker.techchrism.me/markers",
             null,
             { response ->
-                val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-
                 // Iterate through the reports in the api
                 for (i in 0 until response.length()) {
                     val report = response.getJSONObject(i)
-                    val id = UUID.nameUUIDFromBytes(report.getString("_id").toByteArray())
-                    val fireData = ReportedFireData(
-                        id,
-                        report.getDouble("latitude"),
-                        report.getDouble("longitude"),
-                        format.parse(report.getString("reported"))!!
-                    )
+                    val fireData = loadReportedFireData(report)
                     incidentSet.add(fireData)
                     if (this::onNewFire.isInitialized) {
                         onNewFire(fireData)
