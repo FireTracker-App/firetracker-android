@@ -1,16 +1,20 @@
 package me.techchrism.firetracker
 
 import android.content.Context
+import com.android.volley.AuthFailureError
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import me.techchrism.firetracker.firedata.CalFireData
 import me.techchrism.firetracker.firedata.FireData
 import me.techchrism.firetracker.firedata.ReportedFireData
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class NetworkManager
     (context: Context) {
@@ -26,6 +30,37 @@ class NetworkManager
         loadReportedFireData()
     }
 
+    fun reportFire(id: UUID, latitude: Double, longitude: Double) {
+        val reportRequest = object : StringRequest(
+            Method.POST,
+            "https://firetracker.techchrism.me/markers",
+            { result ->
+                //TODO on success, add marker to screen here
+                println("Added marker with id $id")
+            },
+            { //TODO  on failure, print a toast message
+            }
+        ) {
+            override fun getBody(): ByteArray {
+                val data = JSONObject()
+                data.put("reporter", id.toString())
+                data.put("latitude", latitude)
+                data.put("longitude", longitude)
+                return data.toString().toByteArray()
+            }
+
+            override fun getHeaders(): Map<String, String>? {
+                val params: MutableMap<String, String> = HashMap()
+                params["Content-Type"] = "application/json"
+                return params
+            }
+        }
+        requestQueue.add(reportRequest)
+    }
+
+    /**
+     * Loads reported fire data from the FireTracker server
+     */
     private fun loadReportedFireData() {
         val reportedFireDataRequest = JsonArrayRequest(
             Request.Method.GET,
@@ -45,7 +80,7 @@ class NetworkManager
                         format.parse(report.getString("reported"))!!
                     )
                     incidentSet.add(fireData)
-                    if(this::onNewFire.isInitialized) {
+                    if (this::onNewFire.isInitialized) {
                         onNewFire(fireData)
                     }
                 }
@@ -58,7 +93,7 @@ class NetworkManager
     }
 
     /**
-     * Loads the fire data from the API and, if the map is ready, displays it
+     * Loads the fire data from the CalFire API
      */
     private fun loadCalFireData() {
         val fireDataRequest = JsonObjectRequest(
@@ -86,7 +121,7 @@ class NetworkManager
                         incident.getString("SearchDescription")
                     )
                     incidentSet.add(fireData)
-                    if(this::onNewFire.isInitialized) {
+                    if (this::onNewFire.isInitialized) {
                         onNewFire(fireData)
                     }
                 }

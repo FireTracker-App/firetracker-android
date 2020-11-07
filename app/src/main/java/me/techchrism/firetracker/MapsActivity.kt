@@ -1,5 +1,6 @@
 package me.techchrism.firetracker
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -29,12 +30,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var networkManager: NetworkManager
+    private lateinit var appID: UUID
     private val california = LatLng(36.7783, -119.4179)
     private val fireMarkers: HashMap<UUID, Marker> = HashMap()
+    private lateinit var lastMarkerPos: LatLng
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        // Get a unique id for the app
+        val prefs = getPreferences(Context.MODE_PRIVATE);
+        if(prefs.contains("id")) {
+            appID = UUID.fromString(prefs.getString("id", ""))
+        } else {
+            appID = UUID.randomUUID()
+            prefs.edit().putString("id", appID.toString()).apply()
+        }
 
         // Set up the network manager
         networkManager = NetworkManager(this)
@@ -48,24 +60,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val reportButton = findViewById<Button>(R.id.report)
         // Obtain marker placed button for use in methods below.
         val markerPlacedButton = findViewById<Button>(R.id.markerPlaced)
-        markerPlacedButton.visibility = View.GONE;
+        markerPlacedButton.visibility = View.GONE
         // The new marker to be initialized in reportFire()
         lateinit var newMarker: Marker
 
-        reportButton?.setOnClickListener() { // Whenever this button is clicked...
-            newMarker = reportFire();
+        reportButton?.setOnClickListener() {
+            newMarker = reportFire()
             // Set the button to gone while the user sets the location of the marker.
-            reportButton.visibility = View.GONE;
+            reportButton.visibility = View.GONE
             // Return the placedButton button.
-            markerPlacedButton.visibility = View.VISIBLE;
+            markerPlacedButton.visibility = View.VISIBLE
         }
 
-        markerPlacedButton?.setOnClickListener() { // Whenever this button is clicked...
-            enterFireInfo(newMarker);
+        markerPlacedButton?.setOnClickListener() {
+            // Report a fire to the server
+            networkManager.reportFire(appID, lastMarkerPos.latitude, lastMarkerPos.longitude)
+            //TODO remove the marker and wait for network confirmation to add it
+            newMarker.isDraggable = false
+            newMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
             // Set the button to gone while the user sets the location of the marker.
-            markerPlacedButton.visibility = View.GONE;
+            markerPlacedButton.visibility = View.GONE
             // Return the report button.
-            reportButton.visibility = View.VISIBLE;
+            reportButton.visibility = View.VISIBLE
         }
     }
 
@@ -85,6 +101,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Move the camera to California
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(california, 5.5f))
+
+        // Add listener for drag event to get coordinates of marker
+        mMap.setOnMarkerDragListener(object : GoogleMap.OnMarkerDragListener {
+            override fun onMarkerDragStart(p0: Marker?) {}
+            override fun onMarkerDrag(p0: Marker?) {}
+
+            override fun onMarkerDragEnd(marker: Marker) {
+                lastMarkerPos = marker.position
+            }
+        })
+
+        // Set marker window to support new lines
         // From https://stackoverflow.com/a/31629308
         mMap.setInfoWindowAdapter(object : InfoWindowAdapter {
             override fun getInfoWindow(arg0: Marker): View? {
@@ -165,14 +193,5 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         .visible(true)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
         )
-    }
-
-    /**
-     * User enters fire information after placing down the pin on the map
-     */
-    private fun enterFireInfo(placedMarker: Marker) {
-        //TODO
-        placedMarker.isDraggable = false
-        placedMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
     }
 }
