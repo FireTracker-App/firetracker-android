@@ -185,7 +185,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Opens a dialog for the user to report a local fire
      */
     private fun reportFire(): Marker {
-        Toast.makeText(this, "Hold down new orange and yellow striped fire icon to move it.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Hold down new orange and yellow striped fire icon to move it", Toast.LENGTH_LONG).show()
         return mMap.addMarker(
                 MarkerOptions()
                         .position(california)
