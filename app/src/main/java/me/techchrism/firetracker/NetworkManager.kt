@@ -5,6 +5,8 @@ import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import me.techchrism.firetracker.firedata.CalFireData
+import me.techchrism.firetracker.firedata.FireData
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,12 +39,12 @@ class NetworkManager
                     val incident = incidents.getJSONObject(i)
                     val contained = incident.optInt("PercentContained", -1)
                     val acres = incident.optInt("AcresBurned", -1)
-                    val fireData = FireData(
+                    val fireData = CalFireData(
                         UUID.fromString(incident.getString("UniqueId")),
-                        incident.getString("Name"),
-                        incident.getString("Location"),
                         incident.getDouble("Latitude"),
                         incident.getDouble("Longitude"),
+                        incident.getString("Name"),
+                        incident.getString("Location"),
                         incident.getBoolean("Active"),
                         format.parse(incident.getString("Started"))!!,
                         if (contained != -1) contained else null,

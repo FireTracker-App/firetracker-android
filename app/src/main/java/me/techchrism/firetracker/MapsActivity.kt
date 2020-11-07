@@ -11,21 +11,18 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import me.techchrism.firetracker.firedata.CalFireData
+import me.techchrism.firetracker.firedata.FireData
+import me.techchrism.firetracker.firedata.ReportedFireData
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -127,20 +124,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         val dateFormat = DateFormat.getDateFormat(this)
         val numberFormat = NumberFormat.getInstance()
-        val marker = mMap.addMarker(MarkerOptions()
+
+        val markerOptions = MarkerOptions()
             .position(LatLng(fireData.latitude, fireData.longitude))
             .draggable(false)
-            .title(fireData.name)
-            .visible(fireData.active)
-            .icon(BitmapDescriptorFactory.fromResource(R.drawable.calfire_fire_icon))
-            .snippet("""
+
+        // Customize marker depending on fire type
+        if(fireData is CalFireData) {
+            markerOptions.title(fireData.name)
+                .visible(fireData.active)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.calfire_fire_icon))
+                .snippet("""
                         Location: ${fireData.location}
                         Started: ${dateFormat.format(fireData.started)}
                         Acres Burned: ${fireData.acresBurned?.let { numberFormat.format(it) } ?: "unknown"}
                         Contained: ${fireData.percentContained?.toString()?.plus("%") ?: "unknown"}
                         Description: ${fireData.searchDescription}
                     """.trimIndent())
-        )
+        } else if(fireData is ReportedFireData) {
+            markerOptions.title("Reported Fire")
+                .visible(true)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
+                .snippet("Reported: ${dateFormat.format(fireData.reported)}")
+        }
+        val marker = mMap.addMarker(markerOptions)
         fireMarkers[fireData.uniqueID] = marker;
     }
 
