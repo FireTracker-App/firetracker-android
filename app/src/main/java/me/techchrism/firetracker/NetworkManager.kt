@@ -5,6 +5,7 @@ import android.util.JsonReader
 import android.widget.Toast
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -31,6 +32,9 @@ class NetworkManager
         loadReportedFireData()
     }
 
+    /**
+     * Loads a ReportedFireData object from JSON data
+     */
     private fun loadReportedFireData(report: JSONObject) : ReportedFireData {
         val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
         val id = UUID.nameUUIDFromBytes(report.getString("_id").toByteArray())
@@ -42,6 +46,25 @@ class NetworkManager
         )
     }
 
+    /**
+     * Parse network error and call the callback if initialized
+     */
+    private fun handleNetworkError(error: VolleyError, prefix: String) {
+        if (!this::onError.isInitialized) {
+            return
+        }
+        // Toot toot ""train wreck code""
+        val response = error.networkResponse?.data?.let { JSONObject(String(it)) }
+        if(response == null) {
+            onError(prefix + "unknown network error")
+        } else {
+            onError(prefix + response.getString("message"))
+        }
+    }
+
+    /**
+     * Report a fire with the app id and coordinates
+     */
     fun reportFire(id: UUID, latitude: Double, longitude: Double) {
         val data = JSONObject()
         data.put("reporter", id.toString())
@@ -61,15 +84,7 @@ class NetworkManager
                 }
             },
             { error ->
-                // Toot toot ""train wreck code""
-                val response = error.networkResponse?.data?.let { JSONObject(String(it)) }
-                if(response == null) {
-                    if (this::onError.isInitialized) {
-                        onError("unknown network error")
-                    }
-                } else {
-                    onError("Error: " + response.getString("message"))
-                }
+                handleNetworkError(error, "Error while reporting: ")
             }
         )
         requestQueue.add(reportRequest)
@@ -95,7 +110,7 @@ class NetworkManager
                 }
             },
             { error ->
-                // TODO: Handle error
+                handleNetworkError(error, "Error while loading reported fire data: ")
             }
         )
         requestQueue.add(reportedFireDataRequest)
@@ -136,7 +151,7 @@ class NetworkManager
                 }
             },
             { error ->
-                // TODO: Handle error
+                handleNetworkError(error, "Error while loading CalFire data: ")
             }
         )
         requestQueue.add(fireDataRequest)
