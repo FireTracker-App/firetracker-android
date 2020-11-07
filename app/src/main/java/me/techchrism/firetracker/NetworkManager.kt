@@ -1,6 +1,8 @@
 package me.techchrism.firetracker
 
 import android.content.Context
+import android.util.JsonReader
+import android.widget.Toast
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonArrayRequest
@@ -22,6 +24,7 @@ class NetworkManager
 
     lateinit var onNewFire: (FireData) -> Unit
     lateinit var onFireRemoved: (FireData) -> Unit
+    lateinit var onError: (String) -> Unit
 
     init {
         loadCalFireData()
@@ -49,6 +52,7 @@ class NetworkManager
             "https://firetracker.techchrism.me/markers",
             data,
             { response ->
+                // Get the returned marker and add it to the map
                 val report = response.getJSONObject("marker")
                 val fireData = loadReportedFireData(report)
                 incidentSet.add(fireData)
@@ -57,7 +61,15 @@ class NetworkManager
                 }
             },
             { error ->
-                // TODO: Handle error
+                // Toot toot ""train wreck code""
+                val response = error.networkResponse?.data?.let { JSONObject(String(it)) }
+                if(response == null) {
+                    if (this::onError.isInitialized) {
+                        onError("unknown network error")
+                    }
+                } else {
+                    onError("Error: " + response.getString("message"))
+                }
             }
         )
         requestQueue.add(reportRequest)

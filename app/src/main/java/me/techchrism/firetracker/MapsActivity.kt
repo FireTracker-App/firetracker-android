@@ -50,6 +50,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Set up the network manager
         networkManager = NetworkManager(this)
+        networkManager.onError = { message ->
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
