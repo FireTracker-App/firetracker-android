@@ -50,6 +50,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Set up the network manager
         networkManager = NetworkManager(this)
+        networkManager.onError = { message ->
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -76,8 +79,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             // Report a fire to the server
             networkManager.reportFire(appID, lastMarkerPos.latitude, lastMarkerPos.longitude)
             //TODO remove the marker and wait for network confirmation to add it
-            newMarker.isDraggable = false
-            newMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
+            //newMarker.isDraggable = false
+            //newMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
+            newMarker.remove()
             // Set the button to gone while the user sets the location of the marker.
             markerPlacedButton.visibility = View.GONE
             // Return the report button.
@@ -184,7 +188,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Opens a dialog for the user to report a local fire
      */
     private fun reportFire(): Marker {
-        Toast.makeText(this, "Hold down new orange and yellow striped fire icon to move it.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Hold down new orange and yellow striped fire icon to move it", Toast.LENGTH_LONG).show()
         return mMap.addMarker(
                 MarkerOptions()
                         .position(california)
