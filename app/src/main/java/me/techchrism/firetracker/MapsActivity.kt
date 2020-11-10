@@ -143,8 +143,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Set up new marker callback
         networkManager.onNewFire = this::addFireMarker
         // If fires have already been loaded, add them to the map
-        if(networkManager.incidentSet.size > 0) {
-            for(fireData: FireData in networkManager.incidentSet) {
+        if(networkManager.incidents.size > 0) {
+            for(fireData: FireData in networkManager.incidents.values) {
                 addFireMarker(fireData)
             }
         }

@@ -22,7 +22,7 @@ class NetworkManager
     (context: Context) {
     private var requestQueue: RequestQueue = Volley.newRequestQueue(context)
 
-    var incidentSet: HashSet<FireData> = HashSet()
+    var incidents: HashMap<UUID, FireData> = HashMap()
 
     lateinit var onNewFire: (FireData) -> Unit
     lateinit var onFireRemoved: (FireData) -> Unit
@@ -30,7 +30,7 @@ class NetworkManager
     var mainHandler: Handler = Handler(Looper.getMainLooper())
 
     init {
-        //loadCalFireData()
+        loadCalFireData()
         loadReportedFireData()
         connectToWebsocket()
     }
@@ -94,12 +94,10 @@ class NetworkManager
      * Add a fire if it doesn't already exist
      */
     private fun addFire(data: FireData) {
-        for(check in incidentSet) {
-            if(check.uniqueID == data.uniqueID) {
-                return
-            }
+        if(incidents.containsKey(data.uniqueID)) {
+            return
         }
-        incidentSet.add(data)
+        incidents[data.uniqueID] = data
         if (this::onNewFire.isInitialized) {
             onNewFire(data)
         }
