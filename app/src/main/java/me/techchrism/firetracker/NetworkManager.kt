@@ -1,14 +1,15 @@
 package me.techchrism.firetracker
 
 import android.content.Context
-import android.util.JsonReader
-import android.widget.Toast
+import android.os.Handler
+import android.os.Looper
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.koushikdutta.async.http.AsyncHttpClient
 import me.techchrism.firetracker.firedata.CalFireData
 import me.techchrism.firetracker.firedata.FireData
 import me.techchrism.firetracker.firedata.ReportedFireData
@@ -26,10 +27,12 @@ class NetworkManager
     lateinit var onNewFire: (FireData) -> Unit
     lateinit var onFireRemoved: (FireData) -> Unit
     lateinit var onError: (String) -> Unit
+    var mainHandler: Handler = Handler(Looper.getMainLooper())
 
     init {
-        loadCalFireData()
+        //loadCalFireData()
         loadReportedFireData()
+        connectToWebsocket()
     }
 
     /**
@@ -78,16 +81,28 @@ class NetworkManager
                 // Get the returned marker and add it to the map
                 val report = response.getJSONObject("marker")
                 val fireData = loadReportedFireData(report)
-                incidentSet.add(fireData)
-                if (this::onNewFire.isInitialized) {
-                    onNewFire(fireData)
-                }
+                addFire(fireData)
             },
             { error ->
                 handleNetworkError(error, "Error while reporting: ")
             }
         )
         requestQueue.add(reportRequest)
+    }
+
+    /**
+     * Add a fire if it doesn't already exist
+     */
+    private fun addFire(data: FireData) {
+        for(check in incidentSet) {
+            if(check.uniqueID == data.uniqueID) {
+                return
+            }
+        }
+        incidentSet.add(data)
+        if (this::onNewFire.isInitialized) {
+            onNewFire(data)
+        }
     }
 
     /**
@@ -103,10 +118,7 @@ class NetworkManager
                 for (i in 0 until response.length()) {
                     val report = response.getJSONObject(i)
                     val fireData = loadReportedFireData(report)
-                    incidentSet.add(fireData)
-                    if (this::onNewFire.isInitialized) {
-                        onNewFire(fireData)
-                    }
+                    addFire(fireData)
                 }
             },
             { error ->
@@ -144,10 +156,7 @@ class NetworkManager
                         if (acres != -1) acres else null,
                         incident.getString("SearchDescription")
                     )
-                    incidentSet.add(fireData)
-                    if (this::onNewFire.isInitialized) {
-                        onNewFire(fireData)
-                    }
+                    addFire(fireData)
                 }
             },
             { error ->
@@ -155,5 +164,28 @@ class NetworkManager
             }
         )
         requestQueue.add(fireDataRequest)
+    }
+
+    private fun connectToWebsocket() {
+        AsyncHttpClient.getDefaultInstance().websocket("wss://firetracker.techchrism.me/markers",
+            "wss",
+            AsyncHttpClient.WebSocketConnectCallback { ex, webSocket ->
+                if (ex != null) {
+                    ex.printStackTrace()
+                    return@WebSocketConnectCallback
+                }
+                webSocket.setStringCallback { stringData ->
+                    // Parse message body as json
+                    val body = JSONObject(stringData)
+                    // {action: 'created'} indicates a new marker
+                    if (body.getString("action") == "created") {
+                        // Load the marker data and render it on the main thread
+                        val fireData = loadReportedFireData(body.getJSONObject("data"))
+                        mainHandler.post {
+                            addFire(fireData)
+                        }
+                    }
+                }
+            })
     }
 }
