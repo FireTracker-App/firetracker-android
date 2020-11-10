@@ -3,4 +3,5 @@
     <string name="title_activity_maps">Fire Map</string>
     <string name="report_local_fire">Report Local Fire</string>
     <string name="finished_placing_marker">Finished Placing Marker</string>
+    <string name="cancel_button_text">Cancel</string>
 </resources>
