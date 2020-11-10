@@ -1,6 +1,8 @@
 package me.techchrism.firetracker
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -34,13 +36,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val california = LatLng(36.7783, -119.4179)
     private val fireMarkers: HashMap<UUID, Marker> = HashMap()
     private lateinit var lastMarkerPos: LatLng
+    private lateinit var reportToast: Toast
+    private lateinit var cancelToast: Toast
+    private lateinit var placedToast: Toast
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
         // Get a unique id for the app
-        val prefs = getPreferences(Context.MODE_PRIVATE);
+        val prefs = getPreferences(Context.MODE_PRIVATE)
         if(prefs.contains("id")) {
             appID = UUID.fromString(prefs.getString("id", ""))
         } else {
@@ -64,28 +69,62 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Obtain marker placed button for use in methods below.
         val markerPlacedButton = findViewById<Button>(R.id.markerPlaced)
         markerPlacedButton.visibility = View.GONE
+        // Obtain cancel placement button for use in methods below.
+        val cancelPlacementButton = findViewById<Button>(R.id.cancel_button)
+        cancelPlacementButton.visibility = View.GONE
         // The new marker to be initialized in reportFire()
         lateinit var newMarker: Marker
+
+        // Initialize toasts
+        reportToast = Toast.makeText(this, "Hold down new created orange and yellow striped fire icon to move it", Toast.LENGTH_LONG)
+        cancelToast = Toast.makeText(this, "Canceled placement.", Toast.LENGTH_LONG)
+        placedToast = Toast.makeText(this, "Fire Successfully placed on map.", Toast.LENGTH_LONG)
 
         reportButton?.setOnClickListener() {
             newMarker = reportFire()
             // Set the button to gone while the user sets the location of the marker.
-            reportButton.visibility = View.GONE
+            reportButton.visibility = View.INVISIBLE
+            // Give the user the ability to cancel placing a fire on the map.
+            cancelPlacementButton.visibility = View.VISIBLE
             // Return the placedButton button.
             markerPlacedButton.visibility = View.VISIBLE
         }
 
         markerPlacedButton?.setOnClickListener() {
+            // If the report or cancel toast is still showing, cancel it
+            reportToast.cancel()
+            cancelToast.cancel()
+            // Set up & show placed toast
+            placedToast.setGravity(Gravity.TOP, 0, 0)
+            placedToast.show()
+            //newMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
             // Report a fire to the server
             networkManager.reportFire(appID, lastMarkerPos.latitude, lastMarkerPos.longitude)
             //TODO remove the marker and wait for network confirmation to add it
             //newMarker.isDraggable = false
             //newMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
             newMarker.remove()
-            // Set the button to gone while the user sets the location of the marker.
+            // Set the button to gone while the user sets the location of the marker
             markerPlacedButton.visibility = View.GONE
-            // Return the report button.
+            // Return the report button
             reportButton.visibility = View.VISIBLE
+        }
+
+        cancelPlacementButton?.setOnClickListener() {
+            // If the report or placed toast is still showing, cancel it
+            reportToast.cancel()
+            placedToast.cancel()
+            // Set up & show cancel toast
+            cancelToast.setGravity(Gravity.TOP, 0, 0)
+            cancelToast.show()
+            // Remove the temp marker
+            newMarker.remove()
+            // Return the report button
+            reportButton.visibility = View.VISIBLE
+            // Hide the marker placed button
+            markerPlacedButton.visibility = View.GONE
+            // Hide the cancel button
+            cancelPlacementButton.visibility = View.GONE
         }
     }
 
@@ -105,6 +144,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Move the camera to California
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(california, 5.5f))
+
+        // Set the coords to starting coords in case user doesn't move the icon
+        lastMarkerPos = california
 
         // Add listener for drag event to get coordinates of marker
         mMap.setOnMarkerDragListener(object : GoogleMap.OnMarkerDragListener {
@@ -180,7 +222,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .snippet("Reported: ${dateFormat.format(fireData.reported)}")
         }
         val marker = mMap.addMarker(markerOptions)
-        fireMarkers[fireData.uniqueID] = marker;
+        fireMarkers[fireData.uniqueID] = marker
     }
 
     /**
@@ -188,14 +230,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Opens a dialog for the user to report a local fire
      */
     private fun reportFire(): Marker {
-        Toast.makeText(this, "Hold down new orange and yellow striped fire icon to move it", Toast.LENGTH_LONG).show()
+        // If the cancel or placed toast is still showing, cancel it
+        cancelToast.cancel()
+        placedToast.cancel()
+        // Set up & show report toast
+        reportToast.setGravity(Gravity.TOP, 0, 0)
+        reportToast.show()
+        // Add report marker
         return mMap.addMarker(
-                MarkerOptions()
-                        .position(california)
-                        .draggable(true)
-                        .title("New Fire Report")
-                        .visible(true)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
+            MarkerOptions()
+                .position(california)
+                .draggable(true)
+                .title("New Fire Report")
+                .visible(true)
+                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
+                .icon(BitmapDescriptorFactory.fromBitmap(generateLargeIcon(this)))
         )
+    }
+
+    /**
+     * Function only used for creating a user-generated temporary marker.
+     * We want bigger markers for this to make it clearer to the user where the marker is.
+     */
+    fun generateLargeIcon(context: Context): Bitmap {
+        val height = 150
+        val width = 150
+        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.report_fire_icon)
+        return Bitmap.createScaledBitmap(bitmap, width, height, false)
     }
 }
