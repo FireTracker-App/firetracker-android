@@ -106,6 +106,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             newMarker.remove()
             // Set the button to gone while the user sets the location of the marker
             markerPlacedButton.visibility = View.GONE
+            // Hide the cancel placement button
+            cancelPlacementButton.visibility = View.GONE
             // Return the report button
             reportButton.visibility = View.VISIBLE
         }
