@@ -104,7 +104,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             cancelToast.cancel()
 
             // Set up & show placed toast
-            placedToast.setGravity(Gravity.TOP, 0, 0)
+            placedToast.setGravity(Gravity.BOTTOM, 0, 200)
             placedToast.show()
 
             // Report a fire to the server
@@ -124,7 +124,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             reportToast.cancel()
             placedToast.cancel()
             // Set up & show cancel toast
-            cancelToast.setGravity(Gravity.TOP, 0, 0)
+            cancelToast.setGravity(Gravity.BOTTOM, 0, 200)
             cancelToast.show()
             // Remove the temp marker
             newMarker.remove()
@@ -292,7 +292,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         cancelToast.cancel()
         placedToast.cancel()
         // Set up & show report toast
-        reportToast.setGravity(Gravity.TOP, 0, 0)
+        reportToast.setGravity(Gravity.BOTTOM, 0, 200)
         reportToast.show()
         // Add report marker
         return mMap.addMarker(
