@@ -40,6 +40,7 @@ class NetworkManager
      */
     private fun loadReportedFireData(report: JSONObject) : ReportedFireData {
         val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        format.timeZone = TimeZone.getTimeZone("UTC")
         val id = UUID.nameUUIDFromBytes(report.getString("_id").toByteArray())
         return ReportedFireData(
             id,

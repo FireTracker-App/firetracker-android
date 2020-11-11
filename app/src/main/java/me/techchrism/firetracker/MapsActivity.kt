@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.format.DateFormat
 import android.view.Gravity
 import android.view.View
@@ -25,6 +27,7 @@ import me.techchrism.firetracker.firedata.FireData
 import me.techchrism.firetracker.firedata.ReportedFireData
 import java.text.NumberFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
 
@@ -39,6 +42,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var reportToast: Toast
     private lateinit var cancelToast: Toast
     private lateinit var placedToast: Toast
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +80,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         lateinit var newMarker: Marker
 
         // Initialize toasts
-        reportToast = Toast.makeText(this, "Hold down new created orange and yellow striped fire icon to move it", Toast.LENGTH_LONG)
+        reportToast = Toast.makeText(
+            this,
+            "Hold down new created orange and yellow striped fire icon to move it",
+            Toast.LENGTH_LONG
+        )
         cancelToast = Toast.makeText(this, "Canceled placement.", Toast.LENGTH_LONG)
         placedToast = Toast.makeText(this, "Fire Successfully placed on map.", Toast.LENGTH_LONG)
 
@@ -94,16 +102,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             // If the report or cancel toast is still showing, cancel it
             reportToast.cancel()
             cancelToast.cancel()
+
             // Set up & show placed toast
             placedToast.setGravity(Gravity.TOP, 0, 0)
             placedToast.show()
-            //newMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
+
             // Report a fire to the server
             networkManager.reportFire(appID, lastMarkerPos.latitude, lastMarkerPos.longitude)
-            //TODO remove the marker and wait for network confirmation to add it
-            //newMarker.isDraggable = false
-            //newMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
             newMarker.remove()
+
             // Set the button to gone while the user sets the location of the marker
             markerPlacedButton.visibility = View.GONE
             // Hide the cancel placement button
@@ -128,6 +135,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             // Hide the cancel button
             cancelPlacementButton.visibility = View.GONE
         }
+
+        // Update the marker data for reported fires
+        val markerDataTimer = Timer()
+        markerDataTimer.schedule(object : TimerTask() {
+            override fun run() {
+                handler.post {
+                    for (marker in fireMarkers.values) {
+                        val data = marker.tag
+                        if (data is ReportedFireData) {
+                            updateReportedFireMarker(data, marker)
+                        }
+                    }
+                }
+            }
+        }, 0, 1000)
     }
 
     /**
@@ -194,6 +216,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun updateReportedFireMarker(data: ReportedFireData, marker: Marker) {
+        // Get difference between time reported and current time in hours, minutes, and seconds
+        val difference = System.currentTimeMillis() - data.reported.time
+        val hours = TimeUnit.MILLISECONDS.toHours(difference)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(difference) % 60
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(difference) % 60
+
+        // Construct a string for the snippet text
+        val timeString = StringBuilder("Reported ")
+        if(difference < 0) {
+            timeString.append("now")
+        }
+        else {
+            if(hours > 0) {
+                timeString.append(hours).append(" hour")
+                if(hours != 1L) timeString.append("s")
+                timeString.append(" ").append(minutes).append(" minute")
+                if(minutes != 1L) timeString.append("s")
+            } else {
+                // Only show seconds if hours is 0
+                if(minutes != 0L) {
+                    timeString.append(minutes).append(" minute")
+                    if(minutes != 1L) timeString.append("s")
+                    timeString.append(" ")
+                }
+                timeString.append(seconds).append(" second")
+                if(seconds != 1L) timeString.append("s")
+            }
+            timeString.append(" ago")
+        }
+
+        marker.snippet = timeString.toString()
+    }
+
     private fun addFireMarker(fireData: FireData) {
         if (!this::mMap.isInitialized || fireMarkers.containsKey(fireData.uniqueID)) {
             return
@@ -221,9 +277,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             markerOptions.title("Reported Fire")
                 .visible(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
-                .snippet("Reported: ${dateFormat.format(fireData.reported)}")
         }
         val marker = mMap.addMarker(markerOptions)
+        marker.tag = fireData
         fireMarkers[fireData.uniqueID] = marker
     }
 
