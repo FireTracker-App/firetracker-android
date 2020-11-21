@@ -182,29 +182,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        // Set marker window to support new lines
-        // From https://stackoverflow.com/a/31629308
-        mMap.setInfoWindowAdapter(object : InfoWindowAdapter {
-            override fun getInfoWindow(arg0: Marker): View? {
-                return null
-            }
-
-            override fun getInfoContents(marker: Marker): View {
-                val info = LinearLayout(this@MapsActivity)
-                info.orientation = LinearLayout.VERTICAL
-                val title = TextView(this@MapsActivity)
-                title.setTextColor(Color.BLACK)
-                title.gravity = Gravity.CENTER
-                title.setTypeface(null, Typeface.BOLD)
-                title.text = marker.title
-                val snippet = TextView(this@MapsActivity)
-                snippet.setTextColor(Color.GRAY)
-                snippet.text = marker.snippet
-                info.addView(title)
-                info.addView(snippet)
-                return info
-            }
-        })
+        mMap.setInfoWindowAdapter(MarkerInfoWindowAdapter(this))
 
         // Set up new marker callback
         networkManager.onNewFire = this::addFireMarker
