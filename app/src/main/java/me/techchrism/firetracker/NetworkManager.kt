@@ -19,7 +19,7 @@ import java.util.*
 
 
 class NetworkManager
-    (context: Context) {
+    (context: Context, private val userID: UUID) {
     private var requestQueue: RequestQueue = Volley.newRequestQueue(context)
 
     var incidents: HashMap<UUID, FireData> = HashMap()
@@ -46,7 +46,8 @@ class NetworkManager
             id,
             report.getDouble("latitude"),
             report.getDouble("longitude"),
-            format.parse(report.getString("reported"))!!
+            format.parse(report.getString("reported"))!!,
+            report.getBoolean("canRemove")
         )
     }
 
@@ -123,7 +124,7 @@ class NetworkManager
     private fun loadReportedFireData() {
         val reportedFireDataRequest = JsonArrayRequest(
             Request.Method.GET,
-            "https://firetracker.techchrism.me/markers",
+            "https://firetracker.techchrism.me/markers?id=${userID}",
             null,
             { response ->
                 // Iterate through the reports in the api
