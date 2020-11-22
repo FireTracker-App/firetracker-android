@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+<!-- This file is for the menu in the top right of the application
+                   Added by BTischhauser 11/20/2020 -->
+
+
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/about_this_project_menu"
+        android:id="@+id/about_this_project"/>
+    <item android:title="@string/view_fire_safety_tips_menu"
+        android:id="@+id/fire_safety_tips"/>
+</menu>
