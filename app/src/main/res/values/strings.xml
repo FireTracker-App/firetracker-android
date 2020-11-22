@@ -4,4 +4,11 @@
     <string name="report_local_fire">Report Local Fire</string>
     <string name="finished_placing_marker">Finished Placing Marker</string>
     <string name="cancel_button_text">Cancel</string>
+    <string name="about_this_project"><u><b>About This Project</b></u></string>
+    <string name="developers_names"><u><b>Class</b></u>\nCOMP330: Software Engineering\nSection 1\n\n<u><b>Developers</b></u>\nAlex Hadland\nBen Tischhauser\nChris Miller\n\n<u><b>Awesome Professors</b></u>\nJason Isaacs\nNick Stern</string>
+    <string name="go_back">Go Back</string>
+    <string name="fire_safety_tips"><u><b>Fire Safety Tips</b></u>\n<font size="10">(Provided by CalFire)</font></string>
+    <string name="fire_tracker_credits">Fire Tracker Credits</string>
+    <string name="about_this_project_menu">About This Project</string>
+    <string name="view_fire_safety_tips_menu">View Fire Safety Tips</string>
 </resources>

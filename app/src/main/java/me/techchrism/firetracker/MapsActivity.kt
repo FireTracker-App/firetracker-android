@@ -1,6 +1,7 @@
 package me.techchrism.firetracker
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -10,6 +11,8 @@ import android.os.Handler
 import android.os.Looper
 import android.text.format.DateFormat
 import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
@@ -58,7 +61,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // Set up the network manager
-        networkManager = NetworkManager(this)
+        networkManager = NetworkManager(this, appID)
         networkManager.onError = { message ->
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
@@ -184,8 +187,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap.setInfoWindowAdapter(MarkerInfoWindowAdapter(this))
 
-        // Set up new marker callback
+        // Set up marker callbacks
         networkManager.onNewFire = this::addFireMarker
+        networkManager.onFireRemoved = this::removeFireMarker
         // If fires have already been loaded, add them to the map
         if(networkManager.incidents.size > 0) {
             for(fireData: FireData in networkManager.incidents.values) {
@@ -261,6 +265,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         fireMarkers[fireData.uniqueID] = marker
     }
 
+    private fun removeFireMarker(fireData: FireData) {
+        if (!this::mMap.isInitialized || !fireMarkers.containsKey(fireData.uniqueID)) {
+            return
+        }
+        fireMarkers[fireData.uniqueID]?.remove()
+        fireMarkers.remove(fireData.uniqueID)
+    }
+
     /**
      * Places a pin on user location; allows user to place pin
      * Opens a dialog for the user to report a local fire
@@ -293,5 +305,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val width = 150
         val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.report_fire_icon)
         return Bitmap.createScaledBitmap(bitmap, width, height, false)
+    }
+
+    /**
+     * Function to create the menu in the top right for various functions.
+     */
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId){
+            R.id.about_this_project -> {
+                val intent = Intent(this, CreditsActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.fire_safety_tips -> {
+                val intent = Intent(this, TipsActivity::class.java)
+                startActivity(intent)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
