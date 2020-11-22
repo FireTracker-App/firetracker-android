@@ -9,4 +9,6 @@
     <string name="go_back">Go Back</string>
     <string name="fire_safety_tips"><u><b>Fire Safety Tips</b></u>\n<font size="10">(Provided by CalFire)</font></string>
     <string name="fire_tracker_credits">Fire Tracker Credits</string>
+    <string name="about_this_project_menu">About This Project</string>
+    <string name="view_fire_safety_tips_menu">View Fire Safety Tips</string>
 </resources>
