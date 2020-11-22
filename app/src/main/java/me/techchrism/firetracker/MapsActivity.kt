@@ -209,8 +209,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        // Set up new marker callback
+        // Set up marker callbacks
         networkManager.onNewFire = this::addFireMarker
+        networkManager.onFireRemoved = this::removeFireMarker
         // If fires have already been loaded, add them to the map
         if(networkManager.incidents.size > 0) {
             for(fireData: FireData in networkManager.incidents.values) {
@@ -284,6 +285,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val marker = mMap.addMarker(markerOptions)
         marker.tag = fireData
         fireMarkers[fireData.uniqueID] = marker
+    }
+
+    private fun removeFireMarker(fireData: FireData) {
+        if (!this::mMap.isInitialized || !fireMarkers.containsKey(fireData.uniqueID)) {
+            return
+        }
+        fireMarkers[fireData.uniqueID]?.remove()
+        fireMarkers.remove(fireData.uniqueID)
     }
 
     /**
