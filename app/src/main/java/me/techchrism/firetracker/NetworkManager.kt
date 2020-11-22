@@ -19,7 +19,7 @@ import java.util.*
 
 
 class NetworkManager
-    (context: Context) {
+    (context: Context, private val userID: UUID) {
     private var requestQueue: RequestQueue = Volley.newRequestQueue(context)
 
     var incidents: HashMap<UUID, FireData> = HashMap()
@@ -46,7 +46,9 @@ class NetworkManager
             id,
             report.getDouble("latitude"),
             report.getDouble("longitude"),
-            format.parse(report.getString("reported"))!!
+            format.parse(report.getString("reported"))!!,
+            report.getBoolean("canRemove"),
+            report.getString("_id")
         )
     }
 
@@ -92,6 +94,24 @@ class NetworkManager
     }
 
     /**
+     * Remove a fire by id
+     */
+    fun removeFire(id: String) {
+        val removeRequest = JsonObjectRequest(
+            Request.Method.DELETE,
+            "https://firetracker.techchrism.me/markers/${id}?id=${userID}",
+            null,
+            { response ->
+                //TODO evaluate removing from initial request vs waiting for websocket
+            },
+            { error ->
+                handleNetworkError(error, "Error while removing: ")
+            }
+        )
+        requestQueue.add(removeRequest)
+    }
+
+    /**
      * Add a fire if it doesn't already exist
      */
     private fun addFire(data: FireData) {
@@ -105,12 +125,25 @@ class NetworkManager
     }
 
     /**
+     * Remove a fire
+     */
+    private fun removeFire(data: FireData) {
+        if(!incidents.containsKey(data.uniqueID)) {
+            return
+        }
+        incidents.remove(data.uniqueID)
+        if (this::onFireRemoved.isInitialized) {
+            onFireRemoved(data)
+        }
+    }
+
+    /**
      * Loads reported fire data from the FireTracker server
      */
     private fun loadReportedFireData() {
         val reportedFireDataRequest = JsonArrayRequest(
             Request.Method.GET,
-            "https://firetracker.techchrism.me/markers",
+            "https://firetracker.techchrism.me/markers?id=${userID}",
             null,
             { response ->
                 // Iterate through the reports in the api
@@ -182,6 +215,11 @@ class NetworkManager
                         val fireData = loadReportedFireData(body.getJSONObject("data"))
                         mainHandler.post {
                             addFire(fireData)
+                        }
+                    } else if (body.getString("action") == "removed") {
+                        val fireData = loadReportedFireData(body.getJSONObject("data"))
+                        mainHandler.post {
+                            removeFire(fireData)
                         }
                     }
                 }
