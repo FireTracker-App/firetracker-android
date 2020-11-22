@@ -61,7 +61,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // Set up the network manager
-        networkManager = NetworkManager(this)
+        networkManager = NetworkManager(this, appID)
         networkManager.onError = { message ->
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }

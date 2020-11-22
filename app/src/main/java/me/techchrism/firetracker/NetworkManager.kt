@@ -94,6 +94,24 @@ class NetworkManager
     }
 
     /**
+     * Remove a fire by id
+     */
+    fun removeFire(id: String) {
+        val removeRequest = JsonObjectRequest(
+            Request.Method.DELETE,
+            "https://firetracker.techchrism.me/markers/${id}?id=${userID}",
+            null,
+            { response ->
+                //TODO evaluate removing from initial request vs waiting for websocket
+            },
+            { error ->
+                handleNetworkError(error, "Error while removing: ")
+            }
+        )
+        requestQueue.add(removeRequest)
+    }
+
+    /**
      * Add a fire if it doesn't already exist
      */
     private fun addFire(data: FireData) {
