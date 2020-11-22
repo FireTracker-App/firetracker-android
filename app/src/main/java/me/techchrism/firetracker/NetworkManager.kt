@@ -105,6 +105,19 @@ class NetworkManager
     }
 
     /**
+     * Remove a fire
+     */
+    private fun removeFire(data: FireData) {
+        if(!incidents.containsKey(data.uniqueID)) {
+            return
+        }
+        incidents.remove(data.uniqueID)
+        if (this::onFireRemoved.isInitialized) {
+            onFireRemoved(data)
+        }
+    }
+
+    /**
      * Loads reported fire data from the FireTracker server
      */
     private fun loadReportedFireData() {
@@ -182,6 +195,11 @@ class NetworkManager
                         val fireData = loadReportedFireData(body.getJSONObject("data"))
                         mainHandler.post {
                             addFire(fireData)
+                        }
+                    } else if (body.getString("action") == "removed") {
+                        val fireData = loadReportedFireData(body.getJSONObject("data"))
+                        mainHandler.post {
+                            removeFire(fireData)
                         }
                     }
                 }
