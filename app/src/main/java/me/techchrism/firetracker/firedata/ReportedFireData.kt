@@ -7,5 +7,6 @@ data class ReportedFireData (
     override val latitude: Double,
     override val longitude: Double,
     val reported: Date,
-    val canRemove: Boolean
+    val canRemove: Boolean,
+    val internalID: String
 ) : FireData

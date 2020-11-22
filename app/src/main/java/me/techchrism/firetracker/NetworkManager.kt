@@ -47,7 +47,8 @@ class NetworkManager
             report.getDouble("latitude"),
             report.getDouble("longitude"),
             format.parse(report.getString("reported"))!!,
-            report.getBoolean("canRemove")
+            report.getBoolean("canRemove"),
+            report.getString("_id")
         )
     }
 
