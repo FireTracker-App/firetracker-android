@@ -218,6 +218,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 addFireMarker(fireData)
             }
         }
+
+        // Set up the action to take when the window is clicked on.
+        mMap.setOnInfoWindowClickListener { marker ->
+            onMarkerClick(marker)
+        }
     }
 
     private fun updateReportedFireMarker(data: ReportedFireData, marker: Marker) {
@@ -313,7 +318,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .draggable(true)
                 .title("New Fire Report")
                 .visible(true)
-                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
                 .icon(BitmapDescriptorFactory.fromBitmap(generateLargeIcon(this)))
         )
     }
@@ -338,6 +342,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return true
     }
 
+    /**
+     * Function that defines what activities to sart based on the option the user selected in the menu.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when(item.itemId){
@@ -351,5 +358,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    /**
+     * Function to define what happens when a marker is clicked on.
+     */
+    private fun onMarkerClick(marker: Marker) {
+        Toast.makeText(this, "ON INFO WINDOW CLICK METHOD", Toast.LENGTH_SHORT).show()
+    //    networkManager.removeFire(marker.id)
     }
 }
