@@ -113,7 +113,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             placedToast.show()
 
             // Report a fire to the server
-            networkManager.reportFire(appID, lastMarkerPos.latitude, lastMarkerPos.longitude)
+            //TODO change "null" here to the marker description when one is provided from the frontend
+            networkManager.reportFire(appID, lastMarkerPos.latitude, lastMarkerPos.longitude, null)
             newMarker.remove()
 
             // Set the button to gone while the user sets the location of the marker
