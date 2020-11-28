@@ -46,6 +46,7 @@ class NetworkManager
             id,
             report.getDouble("latitude"),
             report.getDouble("longitude"),
+            null,
             format.parse(report.getString("reported"))!!,
             report.getBoolean("canRemove"),
             report.getString("_id")
@@ -180,13 +181,13 @@ class NetworkManager
                         UUID.fromString(incident.getString("UniqueId")),
                         incident.getDouble("Latitude"),
                         incident.getDouble("Longitude"),
+                        incident.getString("SearchDescription"),
                         incident.getString("Name"),
                         incident.getString("Location"),
                         incident.getBoolean("Active"),
                         format.parse(incident.getString("Started"))!!,
                         if (contained != -1) contained else null,
-                        if (acres != -1) acres else null,
-                        incident.getString("SearchDescription")
+                        if (acres != -1) acres else null
                     )
                     addFire(fireData)
                 }

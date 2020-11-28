@@ -283,7 +283,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         Started: ${dateFormat.format(fireData.started)}
                         Acres Burned: ${fireData.acresBurned?.let { numberFormat.format(it) } ?: "unknown"}
                         Contained: ${fireData.percentContained?.toString()?.plus("%") ?: "unknown"}
-                        Description: ${fireData.searchDescription}
+                        Description: ${fireData.description}
                     """.trimIndent())
         } else if(fireData is ReportedFireData) {
             markerOptions.title("Reported Fire")
