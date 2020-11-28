@@ -28,6 +28,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import me.techchrism.firetracker.firedata.CalFireData
 import me.techchrism.firetracker.firedata.FireData
 import me.techchrism.firetracker.firedata.ReportedFireData
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -218,6 +220,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 addFireMarker(fireData)
             }
         }
+
+        // Set up the action to take when the window is clicked on.
+        mMap.setOnInfoWindowClickListener { marker ->
+            onMarkerClick(marker)
+        }
     }
 
     private fun updateReportedFireMarker(data: ReportedFireData, marker: Marker) {
@@ -250,8 +257,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             timeString.append(" ago")
         }
-
-        marker.snippet = timeString.toString()
+        val df = DecimalFormat("#.###")
+        df.roundingMode = RoundingMode.CEILING
+        marker.snippet = timeString.toString() + "\nLocation: (" + df.format(data.latitude) + "°, " + df.format(data.longitude) + "°)"
     }
 
     private fun addFireMarker(fireData: FireData) {
@@ -313,7 +321,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .draggable(true)
                 .title("New Fire Report")
                 .visible(true)
-                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
                 .icon(BitmapDescriptorFactory.fromBitmap(generateLargeIcon(this)))
         )
     }
@@ -338,6 +345,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return true
     }
 
+    /**
+     * Function that defines what activities to sart based on the option the user selected in the menu.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when(item.itemId){
@@ -351,5 +361,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    /**
+     * Function to define what happens when a marker is clicked on.
+     */
+    private fun onMarkerClick(marker: Marker) {
+        //val thisMarker = marker as FireData
+        if(marker.tag is ReportedFireData){
+            // User Reported Fire
+            Toast.makeText(this, "User-Created Marker ID: " + marker.id , Toast.LENGTH_SHORT).show()
+            // TODO
+            //networkManager.removeFire(thisMarker.toString())
+            //removeFireMarker(thisMarker)
+            //networkManager.removeFire(marker.id)
+        }else{
+            // CalFire Fire
+            Toast.makeText(this, "You cannot edit CalFire data", Toast.LENGTH_SHORT).show()
+        }
     }
 }

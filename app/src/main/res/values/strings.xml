@@ -11,4 +11,6 @@
     <string name="fire_tracker_credits">Fire Tracker Credits</string>
     <string name="about_this_project_menu">About This Project</string>
     <string name="view_fire_safety_tips_menu">View Fire Safety Tips</string>
+    <string name="edit_marker">Edit Marker</string>
+    <string name="enter_a_title_for_your_marker">Enter a title for your marker</string>
 </resources>
