@@ -28,6 +28,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import me.techchrism.firetracker.firedata.CalFireData
 import me.techchrism.firetracker.firedata.FireData
 import me.techchrism.firetracker.firedata.ReportedFireData
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -255,8 +257,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             timeString.append(" ago")
         }
-
-        marker.snippet = timeString.toString()
+        val df = DecimalFormat("#.###")
+        df.roundingMode = RoundingMode.CEILING
+        marker.snippet = timeString.toString() + "\nLocation: (" + df.format(data.latitude) + "°, " + df.format(data.longitude) + "°)"
     }
 
     private fun addFireMarker(fireData: FireData) {
@@ -364,7 +367,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Function to define what happens when a marker is clicked on.
      */
     private fun onMarkerClick(marker: Marker) {
-        Toast.makeText(this, "ON INFO WINDOW CLICK METHOD", Toast.LENGTH_SHORT).show()
+        if(marker.title == "Reported Fire"){
+            // User Reported Fire
+
+        }else{
+            // CalFire Fire
+            Toast.makeText(this, "You cannot edit CalFire data", Toast.LENGTH_SHORT).show()
+        }
+
+
     //    networkManager.removeFire(marker.id)
     }
 }
