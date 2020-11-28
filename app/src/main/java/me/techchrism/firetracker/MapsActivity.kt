@@ -367,15 +367,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Function to define what happens when a marker is clicked on.
      */
     private fun onMarkerClick(marker: Marker) {
-        if(marker.title == "Reported Fire"){
+        //val thisMarker = marker as FireData
+        if(marker.tag is ReportedFireData){
             // User Reported Fire
-
+            Toast.makeText(this, "User-Created Marker ID: " + marker.id , Toast.LENGTH_SHORT).show()
+            // TODO
+            //networkManager.removeFire(thisMarker.toString())
+            //removeFireMarker(thisMarker)
+            //networkManager.removeFire(marker.id)
         }else{
             // CalFire Fire
             Toast.makeText(this, "You cannot edit CalFire data", Toast.LENGTH_SHORT).show()
         }
-
-
-    //    networkManager.removeFire(marker.id)
     }
 }

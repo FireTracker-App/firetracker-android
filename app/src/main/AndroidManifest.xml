@@ -8,9 +8,7 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <!--
-         Need for PDF View (Fire Safety Tips)
-    -->
+    <!--          Need for PDF View (Fire Safety Tips) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
@@ -20,6 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FireTracker">
+        <activity android:name=".EditMarkerActivity"></activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -43,12 +42,10 @@
         </activity>
         <activity
             android:name=".TipsActivity"
-            android:label="@string/fire_safety_tips">
-        </activity>
+            android:label="@string/fire_safety_tips"></activity>
         <activity
             android:name=".CreditsActivity"
-            android:label="@string/fire_tracker_credits">
-        </activity>
+            android:label="@string/fire_tracker_credits"></activity>
     </application>
 
 </manifest>
