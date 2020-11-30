@@ -1,5 +1,6 @@
 package me.techchrism.firetracker
 
+import android.content.ClipDescription
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -46,6 +47,7 @@ class NetworkManager
             id,
             report.getDouble("latitude"),
             report.getDouble("longitude"),
+            (if(report.has("description")) report.getString("description") else null),
             format.parse(report.getString("reported"))!!,
             report.getBoolean("canRemove"),
             report.getString("_id")
@@ -71,11 +73,12 @@ class NetworkManager
     /**
      * Report a fire with the app id and coordinates
      */
-    fun reportFire(id: UUID, latitude: Double, longitude: Double) {
+    fun reportFire(id: UUID, latitude: Double, longitude: Double, description: String?) {
         val data = JSONObject()
         data.put("reporter", id.toString())
         data.put("latitude", latitude)
         data.put("longitude", longitude)
+        description?.let { data.put("description", it) }
         val reportRequest = JsonObjectRequest(
             Request.Method.POST,
             "https://firetracker.techchrism.me/markers",
@@ -180,13 +183,13 @@ class NetworkManager
                         UUID.fromString(incident.getString("UniqueId")),
                         incident.getDouble("Latitude"),
                         incident.getDouble("Longitude"),
+                        incident.getString("SearchDescription"),
                         incident.getString("Name"),
                         incident.getString("Location"),
                         incident.getBoolean("Active"),
                         format.parse(incident.getString("Started"))!!,
                         if (contained != -1) contained else null,
-                        if (acres != -1) acres else null,
-                        incident.getString("SearchDescription")
+                        if (acres != -1) acres else null
                     )
                     addFire(fireData)
                 }

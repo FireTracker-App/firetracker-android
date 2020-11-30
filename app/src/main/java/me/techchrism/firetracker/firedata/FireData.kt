@@ -6,4 +6,5 @@ interface FireData {
     var uniqueID: UUID
     val latitude: Double
     val longitude: Double
+    val description: String?
 }
