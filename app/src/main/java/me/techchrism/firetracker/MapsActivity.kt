@@ -144,21 +144,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             // Hide the cancel button
             cancelPlacementButton.visibility = View.GONE
         }
-
-        // Update the marker data for reported fires
-        val markerDataTimer = Timer()
-        markerDataTimer.schedule(object : TimerTask() {
-            override fun run() {
-                handler.post {
-                    for (markerData in fireMarkers.values) {
-                        val data = markerData.marker.tag
-                        if (data is ReportedFireData) {
-                            updateReportedFireMarker(data, markerData.marker)
-                        }
-                    }
-                }
-            }
-        }, 0, 1000)
     }
 
     /**
@@ -202,43 +187,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
 
         mMap.setOnMarkerClickListener(this);
-    }
-
-    private fun updateReportedFireMarker(data: ReportedFireData, marker: Marker) {
-        // Get difference between time reported and current time in hours, minutes, and seconds
-        val difference = System.currentTimeMillis() - data.reported.time
-        val hours = TimeUnit.MILLISECONDS.toHours(difference)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(difference) % 60
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(difference) % 60
-
-        // Construct a string for the snippet text
-        val timeString = StringBuilder("Reported ")
-        if(difference < 0) {
-            timeString.append("now")
-        }
-        else {
-            if(hours > 0) {
-                timeString.append(hours).append(" hour")
-                if(hours != 1L) timeString.append("s")
-                timeString.append(" ").append(minutes).append(" minute")
-                if(minutes != 1L) timeString.append("s")
-            } else {
-                // Only show seconds if hours is 0
-                if(minutes != 0L) {
-                    timeString.append(minutes).append(" minute")
-                    if(minutes != 1L) timeString.append("s")
-                    timeString.append(" ")
-                }
-                timeString.append(seconds).append(" second")
-                if(seconds != 1L) timeString.append("s")
-            }
-            timeString.append(" ago")
-        }
-        val df = DecimalFormat("#.###")
-        df.roundingMode = RoundingMode.CEILING
-        marker.snippet = timeString.toString() + "\nLocation: (" + df.format(data.latitude) + "°, " + df.format(
-            data.longitude
-        ) + "°)"
     }
 
     private fun addFireMarker(fireData: FireData) {

@@ -15,6 +15,7 @@
     <string name="enter_a_title_for_your_marker">Enter a title for your marker</string>
 
     <string name="marker_description_label">Description:</string>
+    <string name="marker_reported_label">Reported:</string>
     <string name="marker_location_label">Location:</string>
     <string name="marker_started_label">Started:</string>
     <string name="marker_burned_label">Acres Burned:</string>
