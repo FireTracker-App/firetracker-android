@@ -4,9 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import me.techchrism.firetracker.firedata.CalFireData
+import me.techchrism.firetracker.firedata.FireData
+import me.techchrism.firetracker.firedata.ReportedFireData
 
-class MarkerInfoFragment : Fragment() {
+class MarkerInfoFragment(private val fireData: FireData) : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -19,5 +23,20 @@ class MarkerInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if(fireData is ReportedFireData) {
+            view.findViewById<TextView>(R.id.marker_title).text = "Reported Fire"
+        }
+        else if(fireData is CalFireData) {
+            view.findViewById<TextView>(R.id.marker_title).text = fireData.name
+        }
+
+        if(fireData.description == null) {
+            view.findViewById<TextView>(R.id.marker_description).visibility = View.GONE
+        }
+        else {
+            println("Description is \"${fireData.description}\"")
+            view.findViewById<TextView>(R.id.marker_description).text = fireData.description
+        }
     }
 }

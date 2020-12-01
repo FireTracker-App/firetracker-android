@@ -183,7 +183,7 @@ class NetworkManager
                         UUID.fromString(incident.getString("UniqueId")),
                         incident.getDouble("Latitude"),
                         incident.getDouble("Longitude"),
-                        incident.getString("SearchDescription"),
+                        (if(incident.isNull("SearchDescription")) null else incident.getString("SearchDescription")),
                         incident.getString("Name"),
                         incident.getString("Location"),
                         incident.getBoolean("Active"),
