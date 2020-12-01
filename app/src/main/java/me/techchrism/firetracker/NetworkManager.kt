@@ -96,7 +96,7 @@ class NetworkManager
     /**
      * Remove a fire by id
      */
-    fun removeFire(id: String) {
+    public fun removeFire(id: String) {
         val removeRequest = JsonObjectRequest(
             Request.Method.DELETE,
             "https://firetracker.techchrism.me/markers/${id}?id=${userID}",

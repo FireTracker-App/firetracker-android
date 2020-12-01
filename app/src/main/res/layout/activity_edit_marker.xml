@@ -9,12 +9,12 @@
     android:background="@drawable/activity_backgrounds">
 
     <TextView
-        android:id="@+id/aboutThisProjectText"
+        android:id="@+id/editMarkerText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:fontFamily="sans-serif-smallcaps"
-        android:text="@string/about_this_project"
+        android:text="@string/edit_marker"
         android:textColor="#F10619"
         android:textSize="36sp"
         android:gravity="center"
@@ -48,15 +48,24 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
 
-        <TextView
-            android:id="@+id/creditsText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-smallcaps"
-            android:gravity="center"
-            android:text="@string/developers_names"
-            android:textColor="#F10619"
-            android:textSize="24sp" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/editTextTextPersonName2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:hint="@string/enter_a_title_for_your_marker"
+                android:importantForAutofill="no"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
