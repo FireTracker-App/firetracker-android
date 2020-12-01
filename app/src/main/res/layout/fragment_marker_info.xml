@@ -15,6 +15,89 @@
         android:textStyle="bold" />
 
     <LinearLayout
+        android:id="@+id/marker_location"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/marker_location_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/marker_location_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_location_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/marker_burned"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/marker_burned_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="@string/marker_burned_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_burned_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/marker_started"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/marker_started_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="@string/marker_started_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_started_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/marker_contained"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/marker_contained_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="@string/marker_contained_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_contained_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/marker_description"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
