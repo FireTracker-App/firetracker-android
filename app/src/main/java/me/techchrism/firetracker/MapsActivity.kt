@@ -271,7 +271,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
         val marker = mMap.addMarker(markerOptions)
         marker.tag = fireData
-        fireMarkers[fireData.uniqueID] = MapMarkerData(marker, InfoWindow(marker, markerSpec, MarkerInfo()), fireData)
+        fireMarkers[fireData.uniqueID] = MapMarkerData(marker, InfoWindow(marker, markerSpec, MarkerInfoFragment()), fireData)
     }
 
     private fun removeFireMarker(fireData: FireData) {
