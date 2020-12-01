@@ -202,19 +202,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         // Customize marker depending on fire type
         if(fireData is CalFireData) {
-            markerOptions.title(fireData.name)
-                .visible(fireData.active)
+            markerOptions.visible(fireData.active)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.calfire_fire_icon))
-                .snippet("""
-                        Location: ${fireData.location}
-                        Started: ${dateFormat.format(fireData.started)}
-                        Acres Burned: ${fireData.acresBurned?.let { numberFormat.format(it) } ?: "unknown"}
-                        Contained: ${fireData.percentContained?.toString()?.plus("%") ?: "unknown"}
-                        Description: ${fireData.description}
-                    """.trimIndent())
         } else if(fireData is ReportedFireData) {
-            markerOptions.title("Reported Fire")
-                .visible(true)
+            markerOptions.visible(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.reported_fire_icon))
         }
         val marker = mMap.addMarker(markerOptions)
@@ -256,7 +247,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
      * Function only used for creating a user-generated temporary marker.
      * We want bigger markers for this to make it clearer to the user where the marker is.
      */
-    fun generateLargeIcon(context: Context): Bitmap {
+    private fun generateLargeIcon(context: Context): Bitmap {
         val height = 150
         val width = 150
         val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.report_fire_icon)
