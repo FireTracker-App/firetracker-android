@@ -35,8 +35,7 @@ class MarkerInfoFragment(private val fireData: FireData) : Fragment() {
             view.findViewById<TextView>(R.id.marker_description).visibility = View.GONE
         }
         else {
-            println("Description is \"${fireData.description}\"")
-            view.findViewById<TextView>(R.id.marker_description).text = fireData.description
+            view.findViewById<TextView>(R.id.marker_description_text).text = fireData.description
         }
     }
 }
