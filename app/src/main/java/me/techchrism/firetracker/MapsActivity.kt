@@ -49,7 +49,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var placedToast: Toast
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var infoWindowManager: InfoWindowManager
-    private val markerSpec = MarkerSpecification(0, 0)
+    private val markerSpec = MarkerSpecification(0, 80)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
