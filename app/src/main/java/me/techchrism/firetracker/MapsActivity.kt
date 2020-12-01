@@ -19,6 +19,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.appolica.interactiveinfowindow.fragment.MapInfoWindowFragment
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -69,9 +70,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        val mapInfoWindowFragment = supportFragmentManager.findFragmentById(R.id.map) as MapInfoWindowFragment
+        mapInfoWindowFragment.getMapAsync(this);
 
         // Obtain main report button for use in methods below.
         val reportButton = findViewById<Button>(R.id.report)
