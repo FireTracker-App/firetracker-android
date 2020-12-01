@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -33,6 +34,11 @@ class MarkerInfoFragment(private val fireData: FireData) : Fragment() {
 
         if(fireData is ReportedFireData) {
             view.findViewById<TextView>(R.id.marker_title).text = "Reported Fire"
+
+            if(fireData.canRemove) {
+                view.findViewById<Button>(R.id.button_remove_marker).visibility = View.VISIBLE
+            }
+
             view.findViewById<LinearLayout>(R.id.marker_location).visibility = View.GONE
             view.findViewById<LinearLayout>(R.id.marker_burned).visibility = View.GONE
             view.findViewById<LinearLayout>(R.id.marker_started).visibility = View.GONE
@@ -97,8 +103,7 @@ class MarkerInfoFragment(private val fireData: FireData) : Fragment() {
         val timeString = StringBuilder()
         if(difference < 0) {
             timeString.append("now")
-        }
-        else {
+        } else {
             if(hours > 0) {
                 timeString.append(hours).append(" hour")
                 if(hours != 1L) timeString.append("s")

@@ -22,6 +22,7 @@ import java.util.*
 class NetworkManager
     (context: Context, private val userID: UUID) {
     private var requestQueue: RequestQueue = Volley.newRequestQueue(context)
+    private var waitingForResponse: Boolean = false
 
     var incidents: HashMap<UUID, FireData> = HashMap()
 
@@ -88,11 +89,13 @@ class NetworkManager
                 val report = response.getJSONObject("marker")
                 val fireData = loadReportedFireData(report)
                 addFire(fireData)
+                waitingForResponse = false
             },
             { error ->
                 handleNetworkError(error, "Error while reporting: ")
             }
         )
+        waitingForResponse = true
         requestQueue.add(reportRequest)
     }
 
@@ -214,6 +217,9 @@ class NetworkManager
                     val body = JSONObject(stringData)
                     // {action: 'created'} indicates a new marker
                     if (body.getString("action") == "created") {
+                        if(waitingForResponse) {
+                            return@setStringCallback
+                        }
                         // Load the marker data and render it on the main thread
                         val fireData = loadReportedFireData(body.getJSONObject("data"))
                         mainHandler.post {

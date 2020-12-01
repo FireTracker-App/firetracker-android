@@ -20,4 +20,5 @@
     <string name="marker_started_label">Started:</string>
     <string name="marker_burned_label">Acres Burned:</string>
     <string name="marker_contained_label">Contained:</string>
+    <string name="marker_remove_button_label">Remove Marker</string>
 </resources>

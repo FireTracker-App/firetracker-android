@@ -47,7 +47,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var reportToast: Toast
     private lateinit var cancelToast: Toast
     private lateinit var placedToast: Toast
-    private val handler = Handler(Looper.getMainLooper())
     private lateinit var infoWindowManager: InfoWindowManager
     private val markerSpec = MarkerSpecification(0, 80)
 
@@ -193,8 +192,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         if (!this::mMap.isInitialized || fireMarkers.containsKey(fireData.uniqueID)) {
             return
         }
-        val dateFormat = DateFormat.getDateFormat(this)
-        val numberFormat = NumberFormat.getInstance()
 
         val markerOptions = MarkerOptions()
             .position(LatLng(fireData.latitude, fireData.longitude))
