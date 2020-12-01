@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,13 +13,13 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.appolica.interactiveinfowindow.InfoWindow
+import com.appolica.interactiveinfowindow.InfoWindow.MarkerSpecification
+import com.appolica.interactiveinfowindow.InfoWindowManager
 import com.appolica.interactiveinfowindow.fragment.MapInfoWindowFragment
 import com.google.android.gms.maps.*
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
@@ -36,19 +34,22 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
+data class MapMarkerData(val marker: Marker, val infoWindow: InfoWindow?, val fireData: FireData)
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var mMap: GoogleMap
     private lateinit var networkManager: NetworkManager
     private lateinit var appID: UUID
     private val california = LatLng(36.7783, -119.4179)
-    private val fireMarkers: HashMap<UUID, Marker> = HashMap()
+    private val fireMarkers: HashMap<UUID, MapMarkerData> = HashMap()
     private lateinit var lastMarkerPos: LatLng
     private lateinit var reportToast: Toast
     private lateinit var cancelToast: Toast
     private lateinit var placedToast: Toast
     private val handler = Handler(Looper.getMainLooper())
+    private lateinit var infoWindowManager: InfoWindowManager
+    private val markerSpec = MarkerSpecification(0, 0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +72,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapInfoWindowFragment = supportFragmentManager.findFragmentById(R.id.map) as MapInfoWindowFragment
-        mapInfoWindowFragment.getMapAsync(this);
+        mapInfoWindowFragment.getMapAsync(this)
+        infoWindowManager = mapInfoWindowFragment.infoWindowManager()
+        infoWindowManager.setHideOnFling(true)
 
         // Obtain main report button for use in methods below.
         val reportButton = findViewById<Button>(R.id.report)
@@ -147,10 +150,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         markerDataTimer.schedule(object : TimerTask() {
             override fun run() {
                 handler.post {
-                    for (marker in fireMarkers.values) {
-                        val data = marker.tag
+                    for (markerData in fireMarkers.values) {
+                        val data = markerData.marker.tag
                         if (data is ReportedFireData) {
-                            updateReportedFireMarker(data, marker)
+                            updateReportedFireMarker(data, markerData.marker)
                         }
                     }
                 }
@@ -188,8 +191,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        mMap.setInfoWindowAdapter(MarkerInfoWindowAdapter(this))
-
         // Set up marker callbacks
         networkManager.onNewFire = this::addFireMarker
         networkManager.onFireRemoved = this::removeFireMarker
@@ -200,10 +201,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        // Set up the action to take when the window is clicked on.
-        mMap.setOnInfoWindowClickListener { marker ->
-            onMarkerClick(marker)
-        }
+        mMap.setOnMarkerClickListener(this);
     }
 
     private fun updateReportedFireMarker(data: ReportedFireData, marker: Marker) {
@@ -238,7 +236,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         val df = DecimalFormat("#.###")
         df.roundingMode = RoundingMode.CEILING
-        marker.snippet = timeString.toString() + "\nLocation: (" + df.format(data.latitude) + "°, " + df.format(data.longitude) + "°)"
+        marker.snippet = timeString.toString() + "\nLocation: (" + df.format(data.latitude) + "°, " + df.format(
+            data.longitude
+        ) + "°)"
     }
 
     private fun addFireMarker(fireData: FireData) {
@@ -271,14 +271,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         val marker = mMap.addMarker(markerOptions)
         marker.tag = fireData
-        fireMarkers[fireData.uniqueID] = marker
+        fireMarkers[fireData.uniqueID] = MapMarkerData(marker, InfoWindow(marker, markerSpec, MarkerInfo()), fireData)
     }
 
     private fun removeFireMarker(fireData: FireData) {
         if (!this::mMap.isInitialized || !fireMarkers.containsKey(fireData.uniqueID)) {
             return
         }
-        fireMarkers[fireData.uniqueID]?.remove()
+        fireMarkers[fireData.uniqueID]?.marker?.remove()
         fireMarkers.remove(fireData.uniqueID)
     }
 
@@ -345,18 +345,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     /**
      * Function to define what happens when a marker is clicked on.
      */
-    private fun onMarkerClick(marker: Marker) {
-        //val thisMarker = marker as FireData
-        if(marker.tag is ReportedFireData){
-            // User Reported Fire
-            Toast.makeText(this, "User-Created Marker ID: " + marker.id , Toast.LENGTH_SHORT).show()
-            // TODO
-            //networkManager.removeFire(thisMarker.toString())
-            //removeFireMarker(thisMarker)
-            //networkManager.removeFire(marker.id)
-        }else{
-            // CalFire Fire
-            Toast.makeText(this, "You cannot edit CalFire data", Toast.LENGTH_SHORT).show()
+    override fun onMarkerClick(marker: Marker): Boolean {
+        if(marker.tag is FireData) {
+            val fireData = marker.tag as FireData
+            val markerData = fireMarkers[fireData.uniqueID]!!
+            markerData.infoWindow?.let {
+                infoWindowManager.toggle(it)
+            }
         }
+        return true
     }
 }
