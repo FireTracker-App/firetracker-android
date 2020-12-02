@@ -12,21 +12,15 @@ class EditMarkerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_edit_marker)
 
         // Set up button functionality to return to main fire map.
-        val returnButton = findViewById<Button>(R.id.returnBtnAbout)
-
-
-        returnButton?.setOnClickListener() {
+        findViewById<Button>(R.id.returnBtnAbout).setOnClickListener() {
             saveDetails()
-//            val intent = Intent(this, MapsActivity::class.java)
-//            startActivity(intent)
         }
     }
 
-    fun saveDetails() {
+    private fun saveDetails() {
         val userDescription = findViewById<EditText>(R.id.editTextTextMultiLine).text.toString()
 
         val result = Intent()
-
         result.putExtra("descriptionKey", userDescription)
         result.putExtra("requestCode", 1)
         result.putExtra("resultCode", RESULT_OK)

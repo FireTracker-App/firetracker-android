@@ -237,11 +237,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         // If the cancel or placed toast is still showing, cancel it
         cancelToast.cancel()
         placedToast.cancel()
-        // Set up & show report toast
-        reportToast.setGravity(Gravity.BOTTOM, 0, 200)
-        reportToast.show()
-
-        // Add report marker
 
         // requestCode for Activity parameters
         val requestCode = 1
@@ -270,9 +265,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         super.onActivityResult(requestCode, resultCode, data)
 
         if(requestCode == 1) {
-
             if(resultCode == RESULT_OK && data != null) {
                 fireDescription = data.getStringExtra("descriptionKey").toString()
+
+                // Set up & show report toast
+                reportToast.setGravity(Gravity.BOTTOM, 0, 200)
+                reportToast.show()
             }
         }
     }
@@ -287,7 +285,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     /**
-     * Function that defines what activities to sart based on the option the user selected in the menu.
+     * Function that defines what activities to sort based on the option the user selected in the menu.
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
@@ -311,7 +309,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         if(marker.tag is FireData) {
             val fireData = marker.tag as FireData
             val markerData = fireMarkers[fireData.uniqueID]!!
-            markerData.infoWindow?.let {
+            markerData.infoWindow.let {
                 infoWindowManager.toggle(it)
             }
         }
