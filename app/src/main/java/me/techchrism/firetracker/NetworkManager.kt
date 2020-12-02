@@ -12,6 +12,7 @@ import com.android.volley.toolbox.Volley
 import com.neovisionaries.ws.client.WebSocket
 import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocketFactory
+import com.neovisionaries.ws.client.WebSocketFrame
 import me.techchrism.firetracker.firedata.CalFireData
 import me.techchrism.firetracker.firedata.FireData
 import me.techchrism.firetracker.firedata.ReportedFireData
@@ -44,6 +45,8 @@ class NetworkManager
     }
 
     fun resume() {
+        loadCalFireData()
+        loadReportedFireData()
         connectToWebsocket()
     }
 
@@ -218,7 +221,7 @@ class NetworkManager
         this.webSocket = WebSocketFactory().createSocket("wss://firetracker.techchrism.me/markers")
         this.webSocket?.addListener(object : WebSocketAdapter() {
             override fun onTextMessage(websocket: WebSocket?, text: String?) {
-                val body = JSONObject(text)
+                val body = JSONObject(text!!)
                 // {action: 'created'} indicates a new marker
                 if (body.getString("action") == "created") {
                     if (waitingForResponse) {
