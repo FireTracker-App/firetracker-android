@@ -188,6 +188,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMarkerClickListener(this)
     }
 
+    override fun onPause() {
+        super.onPause()
+        networkManager.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        networkManager.resume()
+    }
+
     private fun addFireMarker(fireData: FireData) {
         if (!this::mMap.isInitialized || fireMarkers.containsKey(fireData.uniqueID)) {
             return
@@ -240,8 +250,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 .draggable(true)
                 .title("New Fire Report")
                 .visible(true)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
+                .icon(BitmapDescriptorFactory.fromBitmap(generateLargeIcon(this)))
         )
+    }
+
+    /**
+     * Function only used for creating a user-generated temporary marker.
+     * We want bigger markers for this to make it clearer to the user where the marker is.
+     */
+    private fun generateLargeIcon(context: Context): Bitmap {
+        val height = 150
+        val width = 150
+        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.report_fire_icon)
+        return Bitmap.createScaledBitmap(bitmap, width, height, false)
     }
 
     /**
@@ -284,6 +305,4 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
         return true
     }
-
-
 }

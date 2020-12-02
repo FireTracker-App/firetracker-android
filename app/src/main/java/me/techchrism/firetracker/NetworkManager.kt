@@ -1,6 +1,5 @@
 package me.techchrism.firetracker
 
-import android.content.ClipDescription
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -10,7 +9,9 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.koushikdutta.async.http.AsyncHttpClient
+import com.neovisionaries.ws.client.WebSocket
+import com.neovisionaries.ws.client.WebSocketAdapter
+import com.neovisionaries.ws.client.WebSocketFactory
 import me.techchrism.firetracker.firedata.CalFireData
 import me.techchrism.firetracker.firedata.FireData
 import me.techchrism.firetracker.firedata.ReportedFireData
@@ -23,6 +24,7 @@ class NetworkManager
     (context: Context, private val userID: UUID) {
     private var requestQueue: RequestQueue = Volley.newRequestQueue(context)
     private var waitingForResponse: Boolean = false
+    private var webSocket: WebSocket? = null
 
     var incidents: HashMap<UUID, FireData> = HashMap()
 
@@ -37,6 +39,14 @@ class NetworkManager
         connectToWebsocket()
     }
 
+    fun pause() {
+        webSocket?.disconnect()
+    }
+
+    fun resume() {
+        connectToWebsocket()
+    }
+
     /**
      * Loads a ReportedFireData object from JSON data
      */
@@ -48,7 +58,7 @@ class NetworkManager
             id,
             report.getDouble("latitude"),
             report.getDouble("longitude"),
-            (if(report.has("description")) report.getString("description") else null),
+            (if (report.has("description")) report.getString("description") else null),
             format.parse(report.getString("reported"))!!,
             report.getBoolean("canRemove"),
             report.getString("_id")
@@ -102,7 +112,7 @@ class NetworkManager
     /**
      * Remove a fire by id
      */
-    public fun removeFire(id: String) {
+    fun removeFire(id: String) {
         val removeRequest = JsonObjectRequest(
             Request.Method.DELETE,
             "https://firetracker.techchrism.me/markers/${id}?id=${userID}",
@@ -186,7 +196,7 @@ class NetworkManager
                         UUID.fromString(incident.getString("UniqueId")),
                         incident.getDouble("Latitude"),
                         incident.getDouble("Longitude"),
-                        (if(incident.isNull("SearchDescription")) null else incident.getString("SearchDescription")),
+                        (if (incident.isNull("SearchDescription")) null else incident.getString("SearchDescription")),
                         incident.getString("Name"),
                         incident.getString("Location"),
                         incident.getBoolean("Active"),
@@ -205,33 +215,28 @@ class NetworkManager
     }
 
     private fun connectToWebsocket() {
-        AsyncHttpClient.getDefaultInstance().websocket("wss://firetracker.techchrism.me/markers",
-            "wss",
-            AsyncHttpClient.WebSocketConnectCallback { ex, webSocket ->
-                if (ex != null) {
-                    ex.printStackTrace()
-                    return@WebSocketConnectCallback
-                }
-                webSocket.setStringCallback { stringData ->
-                    // Parse message body as json
-                    val body = JSONObject(stringData)
-                    // {action: 'created'} indicates a new marker
-                    if (body.getString("action") == "created") {
-                        if(waitingForResponse) {
-                            return@setStringCallback
-                        }
-                        // Load the marker data and render it on the main thread
-                        val fireData = loadReportedFireData(body.getJSONObject("data"))
-                        mainHandler.post {
-                            addFire(fireData)
-                        }
-                    } else if (body.getString("action") == "removed") {
-                        val fireData = loadReportedFireData(body.getJSONObject("data"))
-                        mainHandler.post {
-                            removeFire(fireData)
-                        }
+        this.webSocket = WebSocketFactory().createSocket("wss://firetracker.techchrism.me/markers")
+        this.webSocket?.addListener(object : WebSocketAdapter() {
+            override fun onTextMessage(websocket: WebSocket?, text: String?) {
+                val body = JSONObject(text)
+                // {action: 'created'} indicates a new marker
+                if (body.getString("action") == "created") {
+                    if (waitingForResponse) {
+                        return
+                    }
+                    // Load the marker data and render it on the main thread
+                    val fireData = loadReportedFireData(body.getJSONObject("data"))
+                    mainHandler.post {
+                        addFire(fireData)
+                    }
+                } else if (body.getString("action") == "removed") {
+                    val fireData = loadReportedFireData(body.getJSONObject("data"))
+                    mainHandler.post {
+                        removeFire(fireData)
                     }
                 }
-            })
+            }
+        })
+        this.webSocket?.connectAsynchronously()
     }
 }
