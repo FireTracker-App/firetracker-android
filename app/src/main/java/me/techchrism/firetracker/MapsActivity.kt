@@ -240,19 +240,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 .draggable(true)
                 .title("New Fire Report")
                 .visible(true)
-                .icon(BitmapDescriptorFactory.fromBitmap(generateLargeIcon(this)))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.report_fire_icon))
         )
-    }
-
-    /**
-     * Function only used for creating a user-generated temporary marker.
-     * We want bigger markers for this to make it clearer to the user where the marker is.
-     */
-    private fun generateLargeIcon(context: Context): Bitmap {
-        val height = 150
-        val width = 150
-        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.report_fire_icon)
-        return Bitmap.createScaledBitmap(bitmap, width, height, false)
     }
 
     /**

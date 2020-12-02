@@ -15,10 +15,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:background="#F10619"
+        android:background="#EF2D3C"
         android:text="@string/go_back"
         android:textColor="@android:color/white"
-        map:backgroundTint="#F10619"
+        map:backgroundTint="#EF2D3C"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintStart_toStartOf="parent" />
