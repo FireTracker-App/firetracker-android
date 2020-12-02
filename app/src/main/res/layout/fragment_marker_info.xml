@@ -153,7 +153,7 @@
         android:layout_height="wrap_content"
         android:text="@string/button_edit_marker_label"
         android:visibility="gone"
-        app:backgroundTint="@android:color/holo_red_dark" />
+        app:backgroundTint="#EF2D3C" />
 
     <Button
         android:id="@+id/button_remove_marker"
@@ -161,6 +161,6 @@
         android:layout_height="wrap_content"
         android:text="@string/marker_remove_button_label"
         android:visibility="gone"
-        app:backgroundTint="@android:color/holo_red_dark" />
+        app:backgroundTint="#EF2D3C" />
 
 </LinearLayout>

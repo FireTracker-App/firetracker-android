@@ -10,14 +10,14 @@
 
     <TextView
         android:id="@+id/aboutThisProjectText"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:fontFamily="sans-serif-smallcaps"
-        android:text="@string/about_this_project"
-        android:textColor="#F10619"
-        android:textSize="36sp"
         android:gravity="center"
+        android:text="@string/about_this_project"
+        android:textColor="#FFFFFF"
+        android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,13 +27,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
-        android:background="#F10619"
+        android:background="#000000"
+        android:shadowColor="@color/black"
         android:text="@string/go_back"
         android:textColor="@android:color/white"
-        app:backgroundTint="#F10619"
+        app:backgroundTint="#EF2D3C"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:rippleColor="#090909"
+        app:strokeColor="#000000" />
 
     <ScrollView
         android:id="@+id/scrollView2"
@@ -50,12 +53,14 @@
 
         <TextView
             android:id="@+id/creditsText"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:fontFamily="sans-serif-smallcaps"
+            android:foregroundGravity="center"
             android:gravity="center"
             android:text="@string/developers_names"
-            android:textColor="#F10619"
+            android:textColor="#FFFFFF"
             android:textSize="24sp" />
     </ScrollView>
 
