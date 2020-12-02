@@ -2,8 +2,6 @@ package me.techchrism.firetracker
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.Gravity
 import android.view.Menu
@@ -246,7 +244,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         // requestCode for Activity parameters
         val requestCode = 1
 
-        val fireInfoIntent = Intent(this, EditMarkerActivity::class.java)
+        val fireInfoIntent = Intent(this, NewMarkerSetupActivity::class.java)
 
         // Start editMarkerActivity
         startActivityForResult(fireInfoIntent, requestCode)
@@ -322,7 +320,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         if(marker.tag is FireData) {
             val fireData = marker.tag as FireData
             val markerData = fireMarkers[fireData.uniqueID]!!
-            markerData.infoWindow?.let {
+            markerData.infoWindow.let {
                 infoWindowManager.toggle(it)
             }
         }
