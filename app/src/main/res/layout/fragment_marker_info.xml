@@ -14,7 +14,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
+        android:background="@android:color/background_light"
         android:gravity="clip_horizontal|center_horizontal"
+        android:textColor="@android:color/secondary_text_light"
         android:textStyle="bold" />
 
     <!-- Burned -->
@@ -28,15 +30,19 @@
             android:id="@+id/marker_burned_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
             android:lines="1"
             android:text="@string/marker_burned_label"
+            android:textColor="@android:color/secondary_text_light"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/marker_burned_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp" />
+            android:background="@android:color/background_light"
+            android:paddingLeft="5dp"
+            android:textColor="@android:color/secondary_text_light" />
     </LinearLayout>
 
     <!-- Started -->
@@ -50,15 +56,19 @@
             android:id="@+id/marker_started_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
             android:lines="1"
             android:text="@string/marker_started_label"
+            android:textColor="@android:color/secondary_text_light"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/marker_started_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp" />
+            android:background="@android:color/background_light"
+            android:paddingLeft="5dp"
+            android:textColor="@android:color/secondary_text_light" />
     </LinearLayout>
 
     <!-- Contained -->
@@ -72,15 +82,19 @@
             android:id="@+id/marker_contained_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
             android:lines="1"
             android:text="@string/marker_contained_label"
+            android:textColor="@android:color/secondary_text_light"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/marker_contained_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp" />
+            android:background="@android:color/background_light"
+            android:paddingLeft="5dp"
+            android:textColor="@android:color/secondary_text_light" />
     </LinearLayout>
 
     <!-- Reported -->
@@ -94,15 +108,19 @@
             android:id="@+id/marker_reported_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
             android:lines="1"
             android:text="@string/marker_reported_label"
+            android:textColor="@android:color/secondary_text_light"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/marker_reported_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp" />
+            android:background="@android:color/background_light"
+            android:paddingLeft="5dp"
+            android:textColor="@android:color/secondary_text_light" />
     </LinearLayout>
 
     <!-- Location -->
@@ -116,14 +134,18 @@
             android:id="@+id/marker_location_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
             android:text="@string/marker_location_label"
+            android:textColor="@android:color/secondary_text_light"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/marker_location_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="20dp" />
+            android:background="@android:color/background_light"
+            android:paddingLeft="20dp"
+            android:textColor="@android:color/secondary_text_light" />
     </LinearLayout>
 
     <!-- Description -->
@@ -137,14 +159,18 @@
             android:id="@+id/marker_description_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
             android:text="@string/marker_description_label"
+            android:textColor="@android:color/secondary_text_light"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/marker_description_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="20dp" />
+            android:background="@android:color/background_light"
+            android:paddingLeft="20dp"
+            android:textColor="@android:color/secondary_text_light" />
     </LinearLayout>
 
     <Button
