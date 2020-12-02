@@ -1,5 +1,6 @@
 package me.techchrism.firetracker
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import me.techchrism.firetracker.firedata.CalFireData
 import me.techchrism.firetracker.firedata.FireData
@@ -36,11 +38,17 @@ class MarkerInfoFragment(private val fireData: FireData, private val networkMana
             view.findViewById<TextView>(R.id.marker_title).text = "Reported Fire"
 
             if(fireData.canRemove) {
-                val button = view.findViewById<Button>(R.id.button_remove_marker)
-                button.visibility = View.VISIBLE
-                button.setOnClickListener {
+                val editButton = view.findViewById<Button>(R.id.button_edit_marker)
+                editButton.visibility = View.VISIBLE
+                editButton.setOnClickListener {
+                    val intent = Intent(activity, EditMarkerActivity::class.java)
+                    startActivity(intent)
+                }
+                val removeButton = view.findViewById<Button>(R.id.button_remove_marker)
+                removeButton.visibility = View.VISIBLE
+                removeButton.setOnClickListener {
                     networkManager.removeFire(fireData.internalID)
-                    button.text = "Removing..."
+                    removeButton.text = "Removing..."
                 }
             }
 
@@ -90,7 +98,7 @@ class MarkerInfoFragment(private val fireData: FireData, private val networkMana
 
     override fun onDestroyView() {
         super.onDestroyView()
-        updateTimer?.cancel();
+        updateTimer?.cancel()
     }
 
     private fun updateReportedTimeText() {

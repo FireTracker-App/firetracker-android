@@ -187,7 +187,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
         }
 
-        mMap.setOnMarkerClickListener(this);
+        mMap.setOnMarkerClickListener(this)
     }
 
     private fun addFireMarker(fireData: FireData) {
@@ -300,4 +300,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
         return true
     }
+
+
 }
