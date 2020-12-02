@@ -38,12 +38,6 @@ class MarkerInfoFragment(private val fireData: FireData, private val networkMana
             view.findViewById<TextView>(R.id.marker_title).text = "Reported Fire"
 
             if(fireData.canRemove) {
-                val editButton = view.findViewById<Button>(R.id.button_edit_marker)
-                editButton.visibility = View.VISIBLE
-                editButton.setOnClickListener {
-                    val intent = Intent(activity, EditMarkerActivity::class.java)
-                    startActivity(intent)
-                }
                 val removeButton = view.findViewById<Button>(R.id.button_remove_marker)
                 removeButton.visibility = View.VISIBLE
                 removeButton.setOnClickListener {
