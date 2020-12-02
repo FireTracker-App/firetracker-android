@@ -188,6 +188,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMarkerClickListener(this)
     }
 
+    override fun onPause() {
+        super.onPause()
+        networkManager.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        networkManager.resume()
+    }
+
     private fun addFireMarker(fireData: FireData) {
         if (!this::mMap.isInitialized || fireMarkers.containsKey(fireData.uniqueID)) {
             return
@@ -295,6 +305,4 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
         return true
     }
-
-
 }
