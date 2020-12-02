@@ -114,6 +114,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             placedToast.setGravity(Gravity.BOTTOM, 0, 200)
             placedToast.show()
 
+
+
             // Report a fire to the server
             //TODO change "null" here to the marker description when one is provided from the frontend
             networkManager.reportFire(appID, lastMarkerPos.latitude, lastMarkerPos.longitude, null)
@@ -243,7 +245,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         // Set up & show report toast
         reportToast.setGravity(Gravity.BOTTOM, 0, 200)
         reportToast.show()
+
         // Add report marker
+
+
         return mMap.addMarker(
             MarkerOptions()
                 .position(california)
