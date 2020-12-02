@@ -12,8 +12,7 @@
     <string name="about_this_project_menu"> About This Project </string>
     <string name="view_fire_safety_tips_menu"> View Fire Safety Tips </string>
     <string name="new_marker">New Marker Setup</string>
-    <string name="enter_a_title_for_your_marker">Type a location for your fire marker</string>
-    <string name="enter_a_description_for_your_fire_marker">Type a description for your fire marker</string>
+    <string name="enter_a_description_for_your_fire_marker">Description for your fire marker (Optional)</string>
     <string name="marker_description_label">Description:</string>
     <string name="marker_reported_label">Reported:</string>
     <string name="marker_location_label">Location:</string>
