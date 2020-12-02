@@ -5,9 +5,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.text.format.DateFormat
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -27,11 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import me.techchrism.firetracker.firedata.CalFireData
 import me.techchrism.firetracker.firedata.FireData
 import me.techchrism.firetracker.firedata.ReportedFireData
-import java.math.RoundingMode
-import java.text.DecimalFormat
-import java.text.NumberFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
 data class MapMarkerData(val marker: Marker, val infoWindow: InfoWindow, val fireData: FireData)
@@ -49,6 +42,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var placedToast: Toast
     private lateinit var infoWindowManager: InfoWindowManager
     private val markerSpec = MarkerSpecification(0, 80)
+    private lateinit var fireDescription : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,9 +108,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             placedToast.setGravity(Gravity.BOTTOM, 0, 200)
             placedToast.show()
 
+
             // Report a fire to the server
+
             //TODO change "null" here to the marker description when one is provided from the frontend
-            networkManager.reportFire(appID, lastMarkerPos.latitude, lastMarkerPos.longitude, null)
+            networkManager.reportFire(appID, lastMarkerPos.latitude, lastMarkerPos.longitude, fireDescription)
             newMarker.remove()
 
             // Set the button to gone while the user sets the location of the marker
@@ -236,6 +232,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
      * Places a pin on user location; allows user to place pin
      * Opens a dialog for the user to report a local fire
      */
+
     private fun reportFire(): Marker {
         // If the cancel or placed toast is still showing, cancel it
         cancelToast.cancel()
@@ -243,7 +240,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         // Set up & show report toast
         reportToast.setGravity(Gravity.BOTTOM, 0, 200)
         reportToast.show()
+
         // Add report marker
+
+        // requestCode for Activity parameters
+        val requestCode = 1
+
+        val fireInfoIntent = Intent(this, EditMarkerActivity::class.java)
+
+        // Start editMarkerActivity
+        startActivityForResult(fireInfoIntent, requestCode)
+
+        // Get description from EditMarketActivity
+        onActivityResult(fireInfoIntent.getIntExtra("requestCode", 0),
+                        fireInfoIntent.getIntExtra("resultCode", 0),
+                        fireInfoIntent)
+
         return mMap.addMarker(
             MarkerOptions()
                 .position(california)
@@ -252,6 +264,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 .visible(true)
                 .icon(BitmapDescriptorFactory.fromBitmap(generateLargeIcon(this)))
         )
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode == 1) {
+
+            if(resultCode == RESULT_OK && data != null) {
+                fireDescription = data.getStringExtra("descriptionKey").toString()
+            }
+        }
     }
 
     /**
