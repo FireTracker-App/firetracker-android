@@ -185,7 +185,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
         }
 
-        mMap.setOnMarkerClickListener(this);
+        mMap.setOnMarkerClickListener(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        networkManager.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        networkManager.resume()
     }
 
     private fun addFireMarker(fireData: FireData) {
