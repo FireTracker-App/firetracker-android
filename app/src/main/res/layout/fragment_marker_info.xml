@@ -148,14 +148,6 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button_edit_marker"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_edit_marker_label"
-        android:visibility="gone"
-        app:backgroundTint="#EF2D3C" />
-
-    <Button
         android:id="@+id/button_remove_marker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
