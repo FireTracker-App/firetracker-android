@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".MarkerInfoFragment">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/marker_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:gravity="clip_horizontal|center_horizontal"
+        android:textStyle="bold" />
+
+    <!-- Burned -->
+    <LinearLayout
+        android:id="@+id/marker_burned"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/marker_burned_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="@string/marker_burned_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_burned_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp" />
+    </LinearLayout>
+
+    <!-- Started -->
+    <LinearLayout
+        android:id="@+id/marker_started"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/marker_started_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="@string/marker_started_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_started_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp" />
+    </LinearLayout>
+
+    <!-- Contained -->
+    <LinearLayout
+        android:id="@+id/marker_contained"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/marker_contained_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="@string/marker_contained_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_contained_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp" />
+    </LinearLayout>
+
+    <!-- Reported -->
+    <LinearLayout
+        android:id="@+id/marker_reported"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/marker_reported_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="@string/marker_reported_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_reported_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp" />
+    </LinearLayout>
+
+    <!-- Location -->
+    <LinearLayout
+        android:id="@+id/marker_location"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/marker_location_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/marker_location_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_location_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp" />
+    </LinearLayout>
+
+    <!-- Description -->
+    <LinearLayout
+        android:id="@+id/marker_description"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/marker_description_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/marker_description_label"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/marker_description_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_remove_marker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/marker_remove_button_label"
+        android:visibility="gone"
+        app:backgroundTint="@android:color/holo_red_dark" />
+
+</LinearLayout>

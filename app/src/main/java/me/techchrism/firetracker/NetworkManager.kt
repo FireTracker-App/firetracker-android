@@ -22,6 +22,7 @@ import java.util.*
 class NetworkManager
     (context: Context, private val userID: UUID) {
     private var requestQueue: RequestQueue = Volley.newRequestQueue(context)
+    private var waitingForResponse: Boolean = false
 
     var incidents: HashMap<UUID, FireData> = HashMap()
 
@@ -88,11 +89,13 @@ class NetworkManager
                 val report = response.getJSONObject("marker")
                 val fireData = loadReportedFireData(report)
                 addFire(fireData)
+                waitingForResponse = false
             },
             { error ->
                 handleNetworkError(error, "Error while reporting: ")
             }
         )
+        waitingForResponse = true
         requestQueue.add(reportRequest)
     }
 
@@ -105,7 +108,7 @@ class NetworkManager
             "https://firetracker.techchrism.me/markers/${id}?id=${userID}",
             null,
             { response ->
-                //TODO evaluate removing from initial request vs waiting for websocket
+                // Upon successful removal, the websocket will broadcast
             },
             { error ->
                 handleNetworkError(error, "Error while removing: ")
@@ -183,7 +186,7 @@ class NetworkManager
                         UUID.fromString(incident.getString("UniqueId")),
                         incident.getDouble("Latitude"),
                         incident.getDouble("Longitude"),
-                        incident.getString("SearchDescription"),
+                        (if(incident.isNull("SearchDescription")) null else incident.getString("SearchDescription")),
                         incident.getString("Name"),
                         incident.getString("Location"),
                         incident.getBoolean("Active"),
@@ -214,6 +217,9 @@ class NetworkManager
                     val body = JSONObject(stringData)
                     // {action: 'created'} indicates a new marker
                     if (body.getString("action") == "created") {
+                        if(waitingForResponse) {
+                            return@setStringCallback
+                        }
                         // Load the marker data and render it on the main thread
                         val fireData = loadReportedFireData(body.getJSONObject("data"))
                         mainHandler.post {
