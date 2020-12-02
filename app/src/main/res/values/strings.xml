@@ -11,7 +11,7 @@
     <string name="fire_tracker_credits">Fire Tracker Credits</string>
     <string name="about_this_project_menu"> About This Project </string>
     <string name="view_fire_safety_tips_menu"> View Fire Safety Tips </string>
-    <string name="edit_marker">Edit Marker</string>
+    <string name="new_marker">New Marker Setup</string>
     <string name="enter_a_title_for_your_marker">Type a location for your fire marker</string>
     <string name="enter_a_description_for_your_fire_marker">Type a description for your fire marker</string>
     <string name="marker_description_label">Description:</string>
@@ -21,4 +21,5 @@
     <string name="marker_burned_label">Acres Burned:</string>
     <string name="marker_contained_label">Contained:</string>
     <string name="marker_remove_button_label">Remove Marker</string>
+    <string name="place_marker_button">Place Marker</string>
 </resources>
