@@ -108,7 +108,7 @@ class NetworkManager
             "https://firetracker.techchrism.me/markers/${id}?id=${userID}",
             null,
             { response ->
-                //TODO evaluate removing from initial request vs waiting for websocket
+                // Upon successful removal, the websocket will broadcast
             },
             { error ->
                 handleNetworkError(error, "Error while removing: ")

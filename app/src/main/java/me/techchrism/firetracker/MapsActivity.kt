@@ -34,7 +34,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
-data class MapMarkerData(val marker: Marker, val infoWindow: InfoWindow?, val fireData: FireData)
+data class MapMarkerData(val marker: Marker, val infoWindow: InfoWindow, val fireData: FireData)
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -207,14 +207,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
         val marker = mMap.addMarker(markerOptions)
         marker.tag = fireData
-        fireMarkers[fireData.uniqueID] = MapMarkerData(marker, InfoWindow(marker, markerSpec, MarkerInfoFragment(fireData)), fireData)
+        fireMarkers[fireData.uniqueID] = MapMarkerData(marker,
+            InfoWindow(marker, markerSpec, MarkerInfoFragment(fireData, networkManager)),
+            fireData)
     }
 
     private fun removeFireMarker(fireData: FireData) {
         if (!this::mMap.isInitialized || !fireMarkers.containsKey(fireData.uniqueID)) {
             return
         }
-        fireMarkers[fireData.uniqueID]?.marker?.remove()
+        val fireMarkerData = fireMarkers[fireData.uniqueID]!!
+        fireMarkerData.marker.remove()
+        infoWindowManager.hide(fireMarkerData.infoWindow)
         fireMarkers.remove(fireData.uniqueID)
     }
 

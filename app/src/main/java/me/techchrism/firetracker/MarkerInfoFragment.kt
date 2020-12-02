@@ -16,7 +16,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class MarkerInfoFragment(private val fireData: FireData) : Fragment() {
+class MarkerInfoFragment(private val fireData: FireData, private val networkManager: NetworkManager) : Fragment() {
 
     private var updateTimer: Timer? = null
 
@@ -36,7 +36,12 @@ class MarkerInfoFragment(private val fireData: FireData) : Fragment() {
             view.findViewById<TextView>(R.id.marker_title).text = "Reported Fire"
 
             if(fireData.canRemove) {
-                view.findViewById<Button>(R.id.button_remove_marker).visibility = View.VISIBLE
+                val button = view.findViewById<Button>(R.id.button_remove_marker)
+                button.visibility = View.VISIBLE
+                button.setOnClickListener {
+                    networkManager.removeFire(fireData.internalID)
+                    button.text = "Removing..."
+                }
             }
 
             view.findViewById<LinearLayout>(R.id.marker_location).visibility = View.GONE
