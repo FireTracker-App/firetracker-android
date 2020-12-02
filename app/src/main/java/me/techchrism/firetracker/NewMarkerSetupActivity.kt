@@ -6,10 +6,10 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 
-class EditMarkerActivity : AppCompatActivity() {
+class NewMarkerSetupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit_marker)
+        setContentView(R.layout.activity_new_marker_setup)
 
         // Set up button functionality to return to main fire map.
         val returnButton = findViewById<Button>(R.id.returnBtnAbout)
